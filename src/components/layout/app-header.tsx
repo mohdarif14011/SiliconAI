@@ -13,11 +13,54 @@ import {
 import { Button } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { RemastoLogo } from "./remasto-logo";
-import { ChevronDown, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { useUser, useAuth } from "@/firebase";
 import { signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu";
+import { cn } from "@/lib/utils";
+import React from "react";
+
+const interviewPositions = [
+  { title: "Software Engineer", href: "#" },
+  { title: "Business Analyst", href: "#" },
+  { title: "Data Analyst", href: "#" },
+  { title: "Sales Executive", href: "#" },
+  { title: "Machine Learning Engineer", href: "#" },
+  { title: "DevOps Engineer", href: "#" },
+];
+
+const interviewCompanies = [
+  { title: "JPMorgan Chase", href: "#" },
+  { title: "Netflix", href: "#" },
+  { title: "HCL", href: "#" },
+  { title: "NVIDIA", href: "#" },
+  { title: "Cognizant", href: "#" },
+  { title: "Wipro", href: "#" },
+];
+
+const otherInterviews = [
+    { title: "Salary Negotiation Interview", href: "#"},
+    { title: "Interviews by Job Description", href: "#"},
+    { title: "Create Your Interviews", href: "#"},
+    { title: "System Design Interview", href: "#"},
+]
+
+const moreInterviewLinks = [
+    { title: "Performance Review Interview", href: "#"},
+    { title: "MBA Admission Interview", href: "#"},
+    { title: "Interview Coach", href: "#"},
+    { title: "Request Role", href: "#"},
+]
 
 export function AppHeader() {
   const { user, isUserLoading } = useUser();
@@ -46,11 +89,15 @@ export function AppHeader() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background">
       <div className="w-full bg-slate-900 text-white text-center py-2 text-sm">
-        <Sparkles className="inline-block h-4 w-4 mr-2 text-yellow-400" />
-        New Feature: AI Resume Analyzer →{" "}
-        <Link href="/resume-analyzer" className="underline font-semibold">
-          Try it now
-        </Link>
+        {isClient && (
+          <>
+            <Sparkles className="inline-block h-4 w-4 mr-2 text-yellow-400" />
+            New Feature: AI Resume Analyzer →{" "}
+            <Link href="/resume-analyzer" className="underline font-semibold">
+              Try it now
+            </Link>
+          </>
+        )}
       </div>
       <div className="container flex h-16 items-center">
         <div className="mr-4 lg:mr-8 flex">
@@ -58,32 +105,74 @@ export function AppHeader() {
             <RemastoLogo />
           </Link>
         </div>
-        <nav className="hidden items-center space-x-2 lg:space-x-6 text-sm font-medium md:flex">
-          <Link
-            href="/dashboard"
-            className="flex items-center text-foreground/60 transition-colors hover:text-foreground/80"
-          >
-            Interviews <ChevronDown className="ml-1 h-4 w-4" />
-          </Link>
-          <Link
-            href="/resume-analyzer"
-            className="flex items-center text-foreground/60 transition-colors hover:text-foreground/80"
-          >
-            Resume <ChevronDown className="ml-1 h-4 w-4" />
-          </Link>
-          <Link
-            href="#"
-            className="text-foreground/60 transition-colors hover:text-foreground/80"
-          >
-            Jobs
-          </Link>
-          <Link
-            href="#"
-            className="text-foreground/60 transition-colors hover:text-foreground/80"
-          >
-            Pricing
-          </Link>
-        </nav>
+        
+        <NavigationMenu>
+          <NavigationMenuList>
+            <NavigationMenuItem>
+              <NavigationMenuTrigger>Interviews</NavigationMenuTrigger>
+              <NavigationMenuContent>
+                <div className="grid w-[600px] grid-cols-2 lg:w-[800px] lg:grid-cols-4 gap-4 p-4">
+                  <div>
+                    <h3 className="font-semibold text-sm mb-2">By Position</h3>
+                    <ul className="space-y-2">
+                      {interviewPositions.map((item) => (
+                        <ListItem key={item.title} title={item.title} href={item.href} />
+                      ))}
+                    </ul>
+                    <Link href="#" className="text-sm text-primary hover:underline mt-2 inline-block">Explore More »</Link>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-sm mb-2">By Company</h3>
+                    <ul className="space-y-2">
+                      {interviewCompanies.map((item) => (
+                        <ListItem key={item.title} title={item.title} href={item.href} />
+                      ))}
+                    </ul>
+                     <Link href="#" className="text-sm text-primary hover:underline mt-2 inline-block">Explore More »</Link>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-sm mb-2">Other Interviews</h3>
+                    <ul className="space-y-2">
+                      {otherInterviews.map((item) => (
+                        <ListItem key={item.title} title={item.title} href={item.href} />
+                      ))}
+                    </ul>
+                  </div>
+                   <div>
+                    <h3 className="font-semibold text-sm mb-2">More</h3>
+                    <ul className="space-y-2">
+                      {moreInterviewLinks.map((item) => (
+                        <ListItem key={item.title} title={item.title} href={item.href} />
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </NavigationMenuContent>
+            </NavigationMenuItem>
+             <NavigationMenuItem>
+                <Link href="/resume-analyzer" legacyBehavior passHref>
+                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    Resume
+                    </NavigationMenuLink>
+                </Link>
+            </NavigationMenuItem>
+             <NavigationMenuItem>
+                <Link href="#" legacyBehavior passHref>
+                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    Jobs
+                    </NavigationMenuLink>
+                </Link>
+            </NavigationMenuItem>
+             <NavigationMenuItem>
+                <Link href="#" legacyBehavior passHref>
+                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    Pricing
+                    </NavigationMenuLink>
+                </Link>
+            </NavigationMenuItem>
+          </NavigationMenuList>
+        </NavigationMenu>
+
         <div className="flex flex-1 items-center justify-end space-x-2 lg:space-x-4">
           <nav className="flex items-center space-x-2">
             {isClient && (isUserLoading ? (
@@ -127,3 +216,30 @@ export function AppHeader() {
     </header>
   );
 }
+
+
+const ListItem = React.forwardRef<
+  React.ElementRef<"a">,
+  React.ComponentPropsWithoutRef<"a">
+>(({ className, title, children, ...props }, ref) => {
+  return (
+    <li>
+      <NavigationMenuLink asChild>
+        <a
+          ref={ref}
+          className={cn(
+            "block select-none space-y-1 rounded-md p-2 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground text-sm",
+            className
+          )}
+          {...props}
+        >
+          <div className="text-sm font-medium leading-none">{title}</div>
+          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+            {children}
+          </p>
+        </a>
+      </NavigationMenuLink>
+    </li>
+  );
+});
+ListItem.displayName = "ListItem";
