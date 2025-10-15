@@ -29,7 +29,7 @@ export default function DashboardPage() {
             <div className="mt-12">
               <Card className="max-w-4xl mx-auto p-4 bg-card shadow-lg border-gray-200">
                 <CardContent className="p-2">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 items-center gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Select defaultValue="design-engineer">
                       <SelectTrigger className="w-full h-12 text-base">
                         <SelectValue placeholder="Design..." />
