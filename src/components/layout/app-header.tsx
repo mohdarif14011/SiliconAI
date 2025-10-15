@@ -17,11 +17,17 @@ import { ChevronDown, Sparkles } from "lucide-react";
 import { useUser, useAuth } from "@/firebase";
 import { signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export function AppHeader() {
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
   const router = useRouter();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -80,7 +86,7 @@ export function AppHeader() {
         </nav>
         <div className="flex flex-1 items-center justify-end space-x-2 lg:space-x-4">
           <nav className="flex items-center space-x-2">
-            {isUserLoading ? (
+            {isClient && (isUserLoading ? (
               <div className="h-8 w-8 rounded-full bg-muted animate-pulse" />
             ) : user ? (
               <DropdownMenu>
@@ -114,7 +120,7 @@ export function AppHeader() {
               <Button asChild>
                 <Link href="/login">Sign In</Link>
               </Button>
-            )}
+            ))}
           </nav>
         </div>
       </div>
