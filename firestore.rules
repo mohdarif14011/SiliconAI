@@ -1,0 +1,67 @@
+/**
+ * @fileoverview Firestore Security Rules for VLSI Interview Ace.
+ *
+ * Core Philosophy:
+ * This ruleset enforces a strict user-ownership model. Each user can only access their own data.
+ *
+ * Data Structure:
+ * All user data is nested under `/users/{userId}`. The `userId` is equivalent to the Firebase Auth UID.
+ *
+ * Key Security Decisions:
+ * - Users cannot list all user profiles. This prevents unauthorized access to other users' data.
+ * - The rules explicitly deny any unauthorized access, ensuring a secure-by-default posture.
+ *
+ * Denormalization for Authorization:
+ * - The `userId` is used as the document ID under `/users/{userId}`, making path-based ownership checks simple and efficient.
+ *
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * @description Controls access to user profile documents.
+     * @path /users/{userId}
+     * @allow (create) User with UID 'user123' can create their profile document.
+     * @deny (create) User with UID 'user456' cannot create a profile document for 'user123'.
+     * @allow (get) User with UID 'user123' can read their profile document.
+     * @deny (get) User with UID 'user456' cannot read the profile document of 'user123'.
+     * @allow (update) User with UID 'user123' can update their profile document.
+     * @deny (update) User with UID 'user456' cannot update the profile document of 'user123'.
+     * @allow (delete) User with UID 'user123' can delete their profile document.
+     * @deny (delete) User with UID 'user456' cannot delete the profile document of 'user123'.
+     * @principle Enforces document ownership for all operations on user profiles.
+     */
+    match /users/{userId} {
+      // Helper function to check if the user is signed in.
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      // Helper function to check if the authenticated user is the owner of the document.
+      function isOwner(userId) {
+        return isSignedIn() && request.auth.uid == userId;
+      }
+
+      // Helper function to check if the authenticated user is the existing owner of the document.
+      function isExistingOwner(userId) {
+        return isOwner(userId) && resource != null;
+      }
+
+      // Allow a user to create their own profile if the UID matches.
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+
+      // Allow a user to get their own profile.
+      allow get: if isOwner(userId);
+
+      // Deny listing all users.
+      allow list: if false;
+
+      // Allow a user to update their own profile.  Ensure the ID cannot be changed.
+      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+
+      // Allow a user to delete their own profile.
+      allow delete: if isExistingOwner(userId);
+    }
+  }
+}
