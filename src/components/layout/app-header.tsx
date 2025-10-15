@@ -41,7 +41,7 @@ export function AppHeader() {
     <header className="sticky top-0 z-50 w-full border-b bg-background">
       <div className="w-full bg-slate-900 text-white text-center py-2 text-sm">
         <Sparkles className="inline-block h-4 w-4 mr-2 text-yellow-400" />
-        New Feature: Get your resume scored by our AI Resume Analyzer →{" "}
+        New Feature: AI Resume Analyzer →{" "}
         <Link href="#" className="underline font-semibold">
           Try it now
         </Link>
