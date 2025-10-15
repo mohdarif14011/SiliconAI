@@ -30,36 +30,35 @@ import {
 import { cn } from "@/lib/utils";
 import React from "react";
 
-const interviewPositions = [
-  { title: "Software Engineer", href: "#" },
-  { title: "Business Analyst", href: "#" },
-  { title: "Data Analyst", href: "#" },
-  { title: "Sales Executive", href: "#" },
-  { title: "Machine Learning Engineer", href: "#" },
-  { title: "DevOps Engineer", href: "#" },
+const vlsiRoles = [
+  { title: "Design Engineer", href: "/interview/design-engineer" },
+  { title: "Verification Engineer", href: "/interview/verification-engineer" },
+  { title: "Physical Design Engineer", href: "/interview/physical-design-engineer" },
+  { title: "DFT Engineer", href: "#" },
+  { title: "Analog Design Engineer", href: "#" },
 ];
 
-const interviewCompanies = [
-  { title: "JPMorgan Chase", href: "#" },
-  { title: "Netflix", href: "#" },
-  { title: "HCL", href: "#" },
+const vlsiCompanies = [
   { title: "NVIDIA", href: "#" },
-  { title: "Cognizant", href: "#" },
-  { title: "Wipro", href: "#" },
+  { title: "Intel", href: "#" },
+  { title: "Qualcomm", href: "#" },
+  { title: "AMD", href: "#" },
+  { title: "Broadcom", href: "#" },
+  { title: "Texas Instruments", href: "#" },
 ];
 
-const otherInterviews = [
-    { title: "Salary Negotiation Interview", href: "#"},
-    { title: "Interviews by Job Description", href: "#"},
-    { title: "Create Your Interviews", href: "#"},
-    { title: "System Design Interview", href: "#"},
+const vlsiTopics = [
+    { title: "Static Timing Analysis (STA)", href: "#"},
+    { title: "Clock Domain Crossing (CDC)", href: "#"},
+    { title: "Low Power Design", href: "#"},
+    { title: "SystemVerilog & UVM", href: "#"},
 ]
 
-const moreInterviewLinks = [
-    { title: "Performance Review Interview", href: "#"},
-    { title: "MBA Admission Interview", href: "#"},
-    { title: "Interview Coach", href: "#"},
-    { title: "Request Role", href: "#"},
+const interviewRounds = [
+    { title: "Technical Round", href: "#"},
+    { title: "Behavioral Round", href: "#"},
+    { title: "Project Deep Dive", href: "#"},
+    { title: "HR Round", href: "#"},
 ]
 
 export function AppHeader() {
@@ -113,35 +112,33 @@ export function AppHeader() {
               <NavigationMenuContent>
                 <div className="grid w-[600px] grid-cols-2 lg:w-[800px] lg:grid-cols-4 gap-4 p-4">
                   <div>
-                    <h3 className="font-semibold text-sm mb-2">By Position</h3>
+                    <h3 className="font-semibold text-sm mb-2">By Role</h3>
                     <ul className="space-y-2">
-                      {interviewPositions.map((item) => (
+                      {vlsiRoles.map((item) => (
                         <ListItem key={item.title} title={item.title} href={item.href} />
                       ))}
                     </ul>
-                    <Link href="#" className="text-sm text-primary hover:underline mt-2 inline-block">Explore More »</Link>
                   </div>
                   <div>
                     <h3 className="font-semibold text-sm mb-2">By Company</h3>
                     <ul className="space-y-2">
-                      {interviewCompanies.map((item) => (
+                      {vlsiCompanies.map((item) => (
                         <ListItem key={item.title} title={item.title} href={item.href} />
                       ))}
                     </ul>
-                     <Link href="#" className="text-sm text-primary hover:underline mt-2 inline-block">Explore More »</Link>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-sm mb-2">Other Interviews</h3>
+                    <h3 className="font-semibold text-sm mb-2">By Topic</h3>
                     <ul className="space-y-2">
-                      {otherInterviews.map((item) => (
+                      {vlsiTopics.map((item) => (
                         <ListItem key={item.title} title={item.title} href={item.href} />
                       ))}
                     </ul>
                   </div>
                    <div>
-                    <h3 className="font-semibold text-sm mb-2">More</h3>
+                    <h3 className="font-semibold text-sm mb-2">By Round</h3>
                     <ul className="space-y-2">
-                      {moreInterviewLinks.map((item) => (
+                      {interviewRounds.map((item) => (
                         <ListItem key={item.title} title={item.title} href={item.href} />
                       ))}
                     </ul>
