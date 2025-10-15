@@ -10,28 +10,26 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import wav from 'wav';
+import {MediaPart} from 'genkit';
 
-const JobRoleSchema = z.enum([
-  'Design Engineer',
-  'Verification Engineer',
-  'Physical Design Engineer',
-]);
+const JobRoleSchema = z.enum(['Design Engineer', 'Verification Engineer', 'Physical Design Engineer']);
 
 const ConductInterviewInputSchema = z.object({
   jobRole: JobRoleSchema.describe('The specific VLSI job role for the interview.'),
-  studentResponse: z.string().describe(
-    'The student\'s audio response to the AI\'s question, as a data URI that must include a MIME type and use Base64 encoding. Expected format: \'data:<mimetype>;base64,<encoded_data>\'.' // Corrected description
-  ),
+  studentResponse: z
+    .string()
+    .describe(
+      "The student's audio response as a data URI (e.g., 'data:audio/webm;base64,...'). If it's the start of the interview, this can be 'none'."
+    ),
   previousTranscript: z.string().optional().describe('The transcript of the previous interview turns.'),
 });
 
 export type ConductInterviewInput = z.infer<typeof ConductInterviewInputSchema>;
 
 const ConductInterviewOutputSchema = z.object({
-  aiResponse: z.string().describe('The AI\'s next question or concluding remarks.'),
-  feedback: z.string().describe('Feedback on the student\'s response, including technical accuracy, clarity, and communication skills.'),
-  transcript: z.string().describe('The complete transcript of the interview so far, including student and AI responses.'),
+  aiResponse: z.string().describe("The AI's next question or concluding remarks."),
+  feedback: z.string().describe("Feedback on the student's response, if applicable."),
+  transcript: z.string().describe('The complete transcript of the interview so far.'),
 });
 
 export type ConductInterviewOutput = z.infer<typeof ConductInterviewOutputSchema>;
@@ -43,12 +41,39 @@ export async function conductInterview(input: ConductInterviewInput): Promise<Co
 const interviewPrompt = ai.definePrompt({
   name: 'interviewPrompt',
   input: {
-    schema: ConductInterviewInputSchema,
+    schema: z.object({
+      jobRole: JobRoleSchema,
+      studentResponseText: z.string(),
+      previousTranscript: z.string().optional(),
+    }),
   },
   output: {
     schema: ConductInterviewOutputSchema,
   },
-  prompt: `You are a VLSI (Very-Large-Scale Integration) expert and an experienced interviewer. You are conducting a voice-based mock interview for the role of {{{jobRole}}}.\n\nYour task is to:\n1.  Pose interview questions relevant to the specified VLSI job role.\n2.  Evaluate the student\'s answers based on technical accuracy, clarity, and communication skills.\n3.  Provide constructive feedback to the student after each response. Be specific about areas of improvement, and explain why those areas need improvement, and cite best-practices for the student to follow. The student needs clear and actionable advice.\n4.  Maintain a conversational tone and adapt the difficulty of questions based on the student\'s performance.\n5.  Conclude the interview when appropriate, providing a summary of the student\'s strengths and weaknesses.\n\nHere is the job role: {{{jobRole}}}.\n\nPrevious transcript: {{{previousTranscript}}}\n\nStudent\'s response:  The student response is in audio format and is not available for you to review directly, therefore base your next question on the previousTranscript.  When generating your response, use newlines to separate the AI's question, and the feedback to the student.  Do not begin with "AI:" or "Feedback:".  It is not necessary to be verbose, it is more important to maintain a realistic interviewing pace.  Do not ever ask the student for clarification of their audio, or suggest that you were not able to understand their answer.  This is a voice-based interview, so after asking a question, await their response.\n\nAI:`, // Corrected prompt to be more concise and direct
+  prompt: `You are a VLSI (Very-Large-Scale Integration) expert and an experienced interviewer. You are conducting a voice-based mock interview for the role of {{{jobRole}}}.
+
+Your task is:
+1.  Ask relevant interview questions for the specified VLSI job role.
+2.  Evaluate the student's answers for technical accuracy, clarity, and communication.
+3.  Provide constructive, concise feedback after each response.
+4.  Maintain a conversational tone.
+5.  Keep a running transcript.
+
+Here is the job role: {{{jobRole}}}.
+
+Previous transcript:
+{{{previousTranscript}}}
+
+Student's latest answer: {{{studentResponseText}}}
+
+Instructions:
+- If 'studentResponseText' is 'none', it's the start of the interview. Greet the student and ask the first question.
+- Otherwise, provide feedback on 'studentResponseText' and then ask the next question.
+- The 'aiResponse' in your output should be ONLY the next question you are asking.
+- The 'feedback' should be your evaluation of the student's last answer.
+- The 'transcript' should be the full conversation, including your new question. Append to the previous transcript.
+- Do not repeat questions from the transcript.
+`,
 });
 
 const conductInterviewFlow = ai.defineFlow(
@@ -58,7 +83,31 @@ const conductInterviewFlow = ai.defineFlow(
     outputSchema: ConductInterviewOutputSchema,
   },
   async input => {
-    const {output} = await interviewPrompt(input);
+    let studentResponseText = 'none';
+
+    if (input.studentResponse !== 'none') {
+      const {text} = await ai.generate({
+        model: 'googleai/gemini-2.5-flash',
+        prompt: [
+          {
+            media: {
+              url: input.studentResponse,
+            },
+          },
+          {text: 'Transcribe this audio.'},
+        ],
+      });
+      studentResponseText = text;
+    }
+    
+    const promptInput = {
+      jobRole: input.jobRole,
+      studentResponseText: studentResponseText,
+      previousTranscript: input.previousTranscript,
+    };
+    
+    const {output} = await interviewPrompt(promptInput);
+
     return output!;
   }
 );

@@ -40,6 +40,7 @@ export type InterviewReport = {
   areasForImprovement: string;
   skillFeedback: SkillFeedback[];
   questionFeedback: QuestionFeedback[];
+  actionableFeedback?: string;
 };
 
 export const ROLES: VlsiRole[] = [
@@ -124,5 +125,6 @@ export const MOCK_REPORT: InterviewReport = {
             feedback: "Good overview of the project. Your description of your tasks was clear. Using the STAR (Situation, Task, Action, Result) method would make your answer more impactful and easier for an interviewer to follow. For instance, what was the result of your work? Did it improve performance or reduce bugs?",
             score: 8,
         }
-    ]
+    ],
+    actionableFeedback: "1. Review CDC techniques like 2-FF synchronizers. 2. For your next project, try to quantify the impact of your contributions with specific metrics (e.g., 'reduced power consumption by 15%'). 3. Practice explaining technical concepts to a non-technical audience to improve clarity.",
 };

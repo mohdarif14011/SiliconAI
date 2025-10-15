@@ -1,4 +1,3 @@
-// This file uses server-side code.
 'use server';
 
 /**
@@ -22,7 +21,11 @@ const PerformanceReportOutputSchema = z.object({
   strengths: z.string().describe('Key strengths demonstrated during the interview.'),
   weaknesses: z.string().describe('Areas needing improvement, with specific examples.'),
   actionableFeedback: z.string().describe('Specific, actionable steps to improve performance.'),
-  overallScore: z.number().describe('The score for the whole interview'),
+  overallScore: z
+    .number()
+    .min(0)
+    .max(100)
+    .describe('The overall interview score on a scale of 0 to 100.'),
 });
 export type PerformanceReportOutput = z.infer<typeof PerformanceReportOutputSchema>;
 
@@ -41,14 +44,14 @@ Analyze the interview transcript to identify the candidate's strengths and weakn
 Provide specific, actionable feedback to help the candidate improve their interview skills and technical knowledge.
 
 Interview Transcript:
-{{interviewTranscript}}
+{{{interviewTranscript}}}
 
-Based on the interview generate the following. Make sure the the keys are quoted strings, and the values are strings.
+Based on the interview, generate the following JSON object.
 
-Strengths: Identify and list the candidate's key strengths demonstrated during the interview.
-Weaknesses: Identify and list areas needing improvement, with specific examples from the interview transcript.
-Actionable Feedback: Provide specific, actionable steps the candidate can take to improve their performance.
-Overall Score: The overall performance score of the interview
+- Strengths: Identify and list the candidate's key strengths.
+- Weaknesses: Identify and list areas for improvement with examples.
+- Actionable Feedback: Provide specific, actionable steps for improvement.
+- Overall Score: Assign a score from 0-100 based on the overall performance.
 `,
 });
 
