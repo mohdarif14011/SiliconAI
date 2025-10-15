@@ -1,3 +1,6 @@
+
+'use client';
+
 import Link from "next/link";
 import {
   Card,
@@ -25,8 +28,23 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { ArrowRight } from "lucide-react";
+import { useUser } from "@/firebase";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
+  const { user } = useUser();
+  const router = useRouter();
+  const [selectedRole, setSelectedRole] = useState("design-engineer");
+
+  const handleStartPractice = () => {
+    if (user) {
+      router.push(`/interview/${selectedRole}`);
+    } else {
+      router.push(`/login?redirect=/interview/${selectedRole}`);
+    }
+  };
+
   return (
     <div className="flex-1 overflow-auto">
       <main className="flex flex-1 flex-col items-center p-4 md:p-8">
@@ -43,7 +61,7 @@ export default function DashboardPage() {
               <Card className="max-w-4xl mx-auto p-4 bg-card shadow-lg border-gray-200">
                 <CardContent className="p-2">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_auto] gap-4 items-center">
-                    <Select defaultValue="design-engineer">
+                    <Select value={selectedRole} onValueChange={setSelectedRole}>
                       <SelectTrigger className="w-full h-12 text-base">
                         <SelectValue placeholder="Design..." />
                       </SelectTrigger>
@@ -80,11 +98,9 @@ export default function DashboardPage() {
                     <Button
                       size="lg"
                       className="w-full h-12 text-base font-bold bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
-                      asChild
+                      onClick={handleStartPractice}
                     >
-                      <Link href="/interview/design-engineer">
-                        START PRACTICE
-                      </Link>
+                      START PRACTICE
                     </Button>
                   </div>
                 </CardContent>

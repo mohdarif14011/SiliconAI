@@ -31,17 +31,15 @@
       },
       "required": [
         "id",
-        "email",
-        "firstName",
-        "lastName",
-        "registrationDate"
+        "email"
       ]
     }
   },
   "auth": {
     "providers": [
       "password",
-      "anonymous"
+      "anonymous",
+      "google.com"
     ]
   },
   "firestore": {
