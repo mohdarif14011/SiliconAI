@@ -8,20 +8,21 @@
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the User entity."
+          "description": "Unique identifier for the User entity (matches Firebase Auth UID)."
         },
         "email": {
           "type": "string",
           "description": "User's email address.",
           "format": "email"
         },
-        "firstName": {
+        "displayName": {
           "type": "string",
-          "description": "User's first name."
+          "description": "User's display name."
         },
-        "lastName": {
+        "photoURL": {
           "type": "string",
-          "description": "User's last name."
+          "description": "URL of the user's profile picture.",
+          "format": "uri"
         },
         "registrationDate": {
           "type": "string",

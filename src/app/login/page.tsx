@@ -7,8 +7,10 @@ import {
   signInWithEmailAndPassword,
   signInWithPopup,
   GoogleAuthProvider,
+  User,
 } from 'firebase/auth';
-import { useAuth } from '@/firebase';
+import { useAuth, useFirestore } from '@/firebase';
+import { doc, setDoc, serverTimestamp, getDoc } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -29,6 +31,7 @@ const provider = new GoogleAuthProvider();
 
 export default function LoginPage() {
   const auth = useAuth();
+  const firestore = useFirestore();
   const router = useRouter();
   const { toast } = useToast();
   const [email, setEmail] = useState('');
@@ -62,6 +65,29 @@ export default function LoginPage() {
     });
   };
 
+  const createUserProfileDocument = async (user: User) => {
+    if (!user) return;
+    const userRef = doc(firestore, `users/${user.uid}`);
+    const snapshot = await getDoc(userRef);
+
+    if (!snapshot.exists()) {
+      const { email, displayName, photoURL } = user;
+      const createdAt = serverTimestamp();
+      try {
+        await setDoc(userRef, {
+          id: user.uid,
+          email,
+          displayName,
+          photoURL,
+          registrationDate: createdAt,
+        });
+      } catch (error) {
+        console.error("Error creating user profile", error);
+      }
+    }
+  };
+
+
   const handleSignIn = async () => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
@@ -74,7 +100,8 @@ export default function LoginPage() {
 
   const handleSignUp = async () => {
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      await createUserProfileDocument(userCredential.user);
       toast({ title: 'Welcome!', description: 'Your account has been created.' });
       router.push('/dashboard');
     } catch (error) {
@@ -84,7 +111,8 @@ export default function LoginPage() {
 
   const handleGoogleSignIn = async () => {
     try {
-      await signInWithPopup(auth, provider);
+      const userCredential = await signInWithPopup(auth, provider);
+      await createUserProfileDocument(userCredential.user);
       toast({ title: 'Success', description: "You're logged in with Google." });
       router.push('/dashboard');
     } catch (error) {
