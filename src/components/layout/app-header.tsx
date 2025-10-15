@@ -147,24 +147,24 @@ export function AppHeader() {
               </NavigationMenuContent>
             </NavigationMenuItem>
              <NavigationMenuItem>
-                <Link href="/resume-analyzer" legacyBehavior passHref>
-                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                    Resume
-                    </NavigationMenuLink>
+                <Link href="/resume-analyzer" passHref>
+                  <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+                    <a>Resume</a>
+                  </NavigationMenuLink>
                 </Link>
             </NavigationMenuItem>
              <NavigationMenuItem>
-                <Link href="#" legacyBehavior passHref>
-                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                    Jobs
-                    </NavigationMenuLink>
+                <Link href="#" passHref>
+                  <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+                    <a>Jobs</a>
+                  </NavigationMenuLink>
                 </Link>
             </NavigationMenuItem>
              <NavigationMenuItem>
-                <Link href="#" legacyBehavior passHref>
-                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                    Pricing
-                    </NavigationMenuLink>
+                <Link href="#" passHref>
+                  <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+                    <a>Pricing</a>
+                  </NavigationMenuLink>
                 </Link>
             </NavigationMenuItem>
           </NavigationMenuList>
@@ -222,7 +222,8 @@ const ListItem = React.forwardRef<
   return (
     <li>
       <NavigationMenuLink asChild>
-        <a
+        <Link
+          href={props.href || '#'}
           ref={ref}
           className={cn(
             "block select-none space-y-1 rounded-md p-2 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground text-sm",
@@ -234,9 +235,11 @@ const ListItem = React.forwardRef<
           <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
             {children}
           </p>
-        </a>
+        </Link>
       </NavigationMenuLink>
     </li>
   );
 });
 ListItem.displayName = "ListItem";
+
+    
