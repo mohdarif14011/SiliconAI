@@ -11,12 +11,10 @@ import { Button } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { RemastoLogo } from "./remasto-logo";
 import { ChevronDown, Sparkles } from "lucide-react";
-import { Input } from "../ui/input";
-import { Search } from "lucide-react";
 
 export function AppHeader() {
   return (
-    <header className="sticky top-0 z-50 w-full bg-background">
+    <header className="sticky top-0 z-50 w-full border-b bg-background">
       <div className="w-full bg-slate-900 text-white text-center py-2 text-sm">
         <Sparkles className="inline-block h-4 w-4 mr-2 text-yellow-400" />
         Just Dropped: Our new job portal with top startup opportunities →{" "}
@@ -86,18 +84,6 @@ export function AppHeader() {
               </DropdownMenuContent>
             </DropdownMenu>
           </nav>
-        </div>
-      </div>
-      <div className="bg-accent border-y">
-        <div className="container py-3">
-          <div className="relative">
-            <Input
-              type="search"
-              placeholder="Today, I want to prepare for Data Analyst"
-              className="h-12 pl-4 pr-10 bg-background"
-            />
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-          </div>
         </div>
       </div>
     </header>
