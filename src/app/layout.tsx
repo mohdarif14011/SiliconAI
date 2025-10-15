@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import { SidebarProvider } from '@/components/ui/sidebar';
-import { AppSidebar } from '@/components/layout/app-sidebar';
 import { Toaster } from '@/components/ui/toaster';
+import { AppHeader } from '@/components/layout/app-header';
 
 export const metadata: Metadata = {
   title: 'VLSI Interview Ace',
@@ -15,17 +14,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
       </head>
       <body className="font-body antialiased">
-        <SidebarProvider>
-          <AppSidebar />
+        <div className="flex flex-col min-h-screen">
+          <AppHeader />
           <main className="flex-1">{children}</main>
-        </SidebarProvider>
+        </div>
         <Toaster />
       </body>
     </html>
