@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { ROLES, type VlsiRole } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
   Mic,
   Square,
