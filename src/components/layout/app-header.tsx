@@ -16,7 +16,7 @@ import { Search } from "lucide-react";
 
 export function AppHeader() {
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full bg-background">
       <div className="w-full bg-slate-900 text-white text-center py-2 text-sm">
         <Sparkles className="inline-block h-4 w-4 mr-2 text-yellow-400" />
         Just Dropped: Our new job portal with top startup opportunities →{" "}
@@ -58,20 +58,6 @@ export function AppHeader() {
         </nav>
         <div className="flex flex-1 items-center justify-end space-x-4">
           <nav className="flex items-center space-x-2">
-            <Link
-              href="#"
-              className="hidden text-foreground/60 transition-colors hover:text-foreground/80 lg:block"
-            >
-              <Button variant="link" className="text-primary font-bold">
-                Business Solutions <ChevronDown className="ml-1 h-4 w-4" />
-              </Button>
-            </Link>
-            <Link
-              href="#"
-              className="hidden font-medium text-foreground/60 transition-colors hover:text-foreground/80 lg:block"
-            >
-              Contact Us
-            </Link>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button

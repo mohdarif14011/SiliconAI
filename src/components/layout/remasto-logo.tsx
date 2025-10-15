@@ -13,7 +13,7 @@ export function RemastoLogo() {
           d="M0 8C0 3.58172 3.58172 0 8 0H24V32H8C3.58172 32 0 28.4183 0 24V8Z"
           fill="currentColor"
         />
-        <rect x="20" width="12" height="32" fill="#1E1E1E" />
+        <rect x="20" width="12" height="32" fill="currentColor" opacity="0.75" />
         <rect x="28" width="12" height="32" fill="currentColor" opacity="0.5" />
         <foreignObject x="38" y="0" width="72" height="32">
           <div
@@ -22,13 +22,14 @@ export function RemastoLogo() {
               display: "flex",
               alignItems: "center",
               height: "100%",
-              color: "hsl(var(--primary))",
+              color: "hsl(var(--foreground))",
               fontWeight: "bold",
               fontSize: "1.5rem",
               letterSpacing: "-0.05em",
+              marginLeft: "4px"
             }}
           >
-            Remasto
+            Remas
           </div>
         </foreignObject>
       </g>
