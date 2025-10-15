@@ -147,23 +147,23 @@ export function AppHeader() {
               </NavigationMenuContent>
             </NavigationMenuItem>
              <NavigationMenuItem>
-                <Link href="/resume-analyzer" passHref>
-                  <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-                    <a>Resume</a>
+                <Link href="/resume-analyzer" legacyBehavior passHref>
+                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    Resume
                   </NavigationMenuLink>
                 </Link>
             </NavigationMenuItem>
              <NavigationMenuItem>
-                <Link href="#" passHref>
-                  <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-                    <a>Jobs</a>
+                <Link href="#" legacyBehavior passHref>
+                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    Jobs
                   </NavigationMenuLink>
                 </Link>
             </NavigationMenuItem>
              <NavigationMenuItem>
-                <Link href="#" passHref>
-                  <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-                    <a>Pricing</a>
+                <Link href="#" legacyBehavior passHref>
+                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    Pricing
                   </NavigationMenuLink>
                 </Link>
             </NavigationMenuItem>
@@ -241,5 +241,3 @@ const ListItem = React.forwardRef<
   );
 });
 ListItem.displayName = "ListItem";
-
-    
