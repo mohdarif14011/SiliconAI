@@ -48,7 +48,7 @@ export function AppHeader() {
       <div className="w-full bg-slate-900 text-white text-center py-2 text-sm">
         <Sparkles className="inline-block h-4 w-4 mr-2 text-yellow-400" />
         New Feature: AI Resume Analyzer →{" "}
-        <Link href="#" className="underline font-semibold">
+        <Link href="/resume-analyzer" className="underline font-semibold">
           Try it now
         </Link>
       </div>
@@ -60,13 +60,13 @@ export function AppHeader() {
         </div>
         <nav className="hidden items-center space-x-2 lg:space-x-6 text-sm font-medium md:flex">
           <Link
-            href="#"
+            href="/dashboard"
             className="flex items-center text-foreground/60 transition-colors hover:text-foreground/80"
           >
             Interviews <ChevronDown className="ml-1 h-4 w-4" />
           </Link>
           <Link
-            href="#"
+            href="/resume-analyzer"
             className="flex items-center text-foreground/60 transition-colors hover:text-foreground/80"
           >
             Resume <ChevronDown className="ml-1 h-4 w-4" />
