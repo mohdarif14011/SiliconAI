@@ -25,12 +25,12 @@ export function AppHeader() {
         </Link>
       </div>
       <div className="container flex h-16 items-center">
-        <div className="mr-4 flex">
+        <div className="mr-4 lg:mr-8 flex">
           <Link href="/dashboard" className="flex items-center space-x-2">
             <RemastoLogo />
           </Link>
         </div>
-        <nav className="hidden items-center space-x-6 text-sm font-medium md:flex">
+        <nav className="hidden items-center space-x-2 lg:space-x-6 text-sm font-medium md:flex">
           <Link
             href="#"
             className="flex items-center text-foreground/60 transition-colors hover:text-foreground/80"
@@ -56,7 +56,7 @@ export function AppHeader() {
             Pricing
           </Link>
         </nav>
-        <div className="flex flex-1 items-center justify-end space-x-4">
+        <div className="flex flex-1 items-center justify-end space-x-2 lg:space-x-4">
           <nav className="flex items-center space-x-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
