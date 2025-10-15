@@ -22,7 +22,7 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
       </head>
       <body className="font-body antialiased">
-        <div className="flex flex-col min-h-screen">
+        <div className="flex flex-col min-h-screen overflow-x-hidden">
           <AppHeader />
           <main className="flex-1">{children}</main>
         </div>
