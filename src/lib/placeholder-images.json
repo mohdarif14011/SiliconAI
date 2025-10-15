@@ -1,3 +1,22 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "design-engineer",
+      "description": "An abstract representation of digital circuits and logic gates.",
+      "imageUrl": "https://picsum.photos/seed/1/600/400",
+      "imageHint": "digital circuit"
+    },
+    {
+      "id": "verification-engineer",
+      "description": "A conceptual image showing verification and bug hunting.",
+      "imageUrl": "https://picsum.photos/seed/2/600/400",
+      "imageHint": "quality assurance"
+    },
+    {
+      "id": "physical-design-engineer",
+      "description": "An image illustrating the physical layout of a microchip.",
+      "imageUrl": "https://picsum.photos/seed/3/600/400",
+      "imageHint": "chip layout"
+    }
+  ]
 }
