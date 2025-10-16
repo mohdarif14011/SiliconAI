@@ -4,7 +4,6 @@
 import Link from 'next/link';
 import {
   NavigationMenu,
-  NavigationMenuContent,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
@@ -22,12 +21,13 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Logo } from './logo';
 import { cn } from '@/lib/utils';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ROLES } from '@/lib/data';
 import { useUser } from '@/firebase';
 import { getAuth, signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
-import { Cpu, LayoutGrid, ShieldCheck, LogOut, History, ChevronDown } from 'lucide-react';
+import { Cpu, LayoutGrid, ShieldCheck, LogOut, History, ChevronDown, FileText } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const icons: { [key: string]: React.ElementType } = {
   'design-engineer': Cpu,
@@ -38,6 +38,11 @@ const icons: { [key: string]: React.ElementType } = {
 export function AppHeader() {
   const { user, isUserLoading } = useUser();
   const router = useRouter();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -75,21 +80,23 @@ export function AppHeader() {
                 <DropdownMenuContent className="w-[500px]" align="start">
                   <div className="grid w-full grid-cols-2 gap-3 p-2">
                     {ROLES.map(role => (
-                       <Link href={`/interview/${role.slug}`} key={role.name} passHref>
-                          <ListItem
-                            title={role.name}
-                            icon={icons[role.slug]}
-                          >
-                            {role.description}
-                          </ListItem>
-                       </Link>
+                       <DropdownMenuItem key={role.name} asChild>
+                         <Link href={`/interview/${role.slug}`}>
+                            <ListItem
+                              title={role.name}
+                              icon={icons[role.slug]}
+                            >
+                              {role.description}
+                            </ListItem>
+                         </Link>
+                       </DropdownMenuItem>
                     ))}
                   </div>
                 </DropdownMenuContent>
               </DropdownMenu>
 
               <NavigationMenuItem>
-                <Link href="/resume-analyzer" legacyBehavior passHref>
+                <Link href="/resume-analyzer" passHref>
                   <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                     Resume
                   </NavigationMenuLink>
@@ -110,8 +117,8 @@ export function AppHeader() {
         </div>
         <div className="flex flex-1 items-center justify-end space-x-4">
           <nav className="flex items-center space-x-2">
-            {isUserLoading ? (
-              <div className="h-8 w-8 animate-pulse rounded-full bg-muted" />
+            {!isClient || isUserLoading ? (
+              <Skeleton className="h-8 w-8 rounded-full" />
             ) : user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -132,14 +139,12 @@ export function AppHeader() {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <Link href="/past-interviews" passHref legacyBehavior>
-                    <DropdownMenuItem asChild className="cursor-pointer">
-                      <a>
-                        <History className="mr-2 h-4 w-4" />
-                        <span>Interview History</span>
-                      </a>
-                    </DropdownMenuItem>
-                  </Link>
+                  <DropdownMenuItem asChild>
+                    <Link href="/past-interviews">
+                      <History className="mr-2 h-4 w-4" />
+                      <span>Interview History</span>
+                    </Link>
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
                     <LogOut className="mr-2 h-4 w-4" />
@@ -160,11 +165,11 @@ export function AppHeader() {
 }
 
 const ListItem = React.forwardRef<
-  React.ElementRef<'a'>,
-  React.ComponentPropsWithoutRef<'a'> & { icon?: React.ElementType }
+  React.ElementRef<'div'>,
+  React.ComponentPropsWithoutRef<'div'> & { icon?: React.ElementType }
 >(({ className, title, children, icon: Icon, ...props }, ref) => {
   return (
-    <a
+    <div
       ref={ref}
       className={cn(
         'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
@@ -179,7 +184,7 @@ const ListItem = React.forwardRef<
       <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
         {children}
       </p>
-    </a>
+    </div>
   );
 });
 ListItem.displayName = 'ListItem';
