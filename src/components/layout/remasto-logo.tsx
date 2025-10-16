@@ -2,13 +2,14 @@
 export function RemastoLogo() {
   return (
     <div className="flex items-center">
-      <img 
-        src="https://res.cloudinary.com/donszbe80/image/upload/v1760549926/Logo_si_ygvrru.png" 
+      <img
+        src="https://res.cloudinary.com/donszbe80/image/upload/v1760549926/Logo_si_ygvrru.png"
         width="32"
         height="32"
-        alt="VLSI Interview Ace Logo"
+        alt="SiliconAI Logo"
         style={{
-          borderRadius: "8px"
+          borderRadius: "50%",
+          marginLeft: "8px"
         }}
       />
       <div
@@ -20,10 +21,10 @@ export function RemastoLogo() {
           fontWeight: "bold",
           fontSize: "1.25rem",
           letterSpacing: "-0.05em",
-          marginLeft: "8px"
+          marginLeft: "8px",
         }}
       >
-        VLSI Interview Ace
+        SiliconAI
       </div>
     </div>
   );

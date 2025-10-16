@@ -5,7 +5,7 @@ import { AppHeader } from '@/components/layout/app-header';
 import { FirebaseClientProvider } from '@/firebase';
 
 export const metadata: Metadata = {
-  title: 'VLSI Interview Ace',
+  title: 'SiliconAI',
   description: 'AI-powered mock interviews for VLSI job roles.',
 };
 
