@@ -1,6 +1,6 @@
 
 .loader {
-    --size: 140px;
+    --size: 140vmin;
     --duration: 2.5s;
     --logo-color: hsl(var(--primary));
     --background: linear-gradient(

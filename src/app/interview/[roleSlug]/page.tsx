@@ -401,7 +401,7 @@ export default function InterviewPage() {
        <PageHeader title={`${selectedRole?.name ?? 'Interview'} `} />
        <main className="flex flex-1 flex-col items-center justify-center p-4">
          {status === 'speaking' && (
-            <div className="absolute inset-0 flex items-center justify-center -z-10 blur-3xl">
+            <div className="absolute inset-0 flex items-center justify-center -z-10 blur-2xl">
                 <SpeakingAnimation />
             </div>
          )}
