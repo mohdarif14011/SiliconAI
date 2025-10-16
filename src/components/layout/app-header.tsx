@@ -34,7 +34,6 @@ import { useRouter } from 'next/navigation';
 import { LogOut, History, Menu } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
-
 export function AppHeader() {
   const { user, isUserLoading } = useUser();
   const router = useRouter();
@@ -73,21 +72,21 @@ export function AppHeader() {
              <NavigationMenu>
               <NavigationMenuList>
                 <NavigationMenuItem>
-                  <Link href="/resume-analyzer" asChild>
+                  <Link href="/resume-analyzer" legacyBehavior passHref>
                     <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                       Resume Analyzer
                     </NavigationMenuLink>
                   </Link>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                   <Link href="/past-interviews" asChild>
+                   <Link href="/past-interviews" legacyBehavior passHref>
                      <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                         Past Interviews
                      </NavigationMenuLink>
                    </Link>
                 </NavigationMenuItem>
                  <NavigationMenuItem>
-                   <Link href="#" asChild>
+                   <Link href="#" legacyBehavior passHref>
                      <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), "disabled:opacity-50 cursor-not-allowed")}>
                        Pricing
                      </NavigationMenuLink>
