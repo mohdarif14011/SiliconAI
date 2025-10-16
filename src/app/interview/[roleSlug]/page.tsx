@@ -37,7 +37,6 @@ import * as Tone from "tone";
 import { conductInterview, ConductInterviewOutput } from "@/ai/ai-role-based-interview-simulation";
 import { textToSpeech } from "@/ai/ai-text-to-speech";
 import { useToast } from "@/hooks/use-toast";
-import { Skeleton } from "@/components/ui/skeleton";
 import { SpeakingAnimation } from "@/components/ai/speaking-animation";
 
 type InterviewStatus =
