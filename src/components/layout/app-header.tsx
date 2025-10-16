@@ -71,30 +71,6 @@ export function AppHeader() {
           </Link>
           <NavigationMenu>
             <NavigationMenuList>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className={cn(navigationMenuTriggerStyle(), 'gap-1')}>
-                    Interviews <ChevronDown className="h-3 w-3" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-[500px]" align="start">
-                  <div className="grid w-full grid-cols-2 gap-3 p-2">
-                    {ROLES.map(role => (
-                       <DropdownMenuItem key={role.slug} asChild className="p-0">
-                         <Link href={`/interview/${role.slug}`}>
-                            <ListItem
-                              title={role.name}
-                              icon={icons[role.slug]}
-                            >
-                              {role.description}
-                            </ListItem>
-                         </Link>
-                       </DropdownMenuItem>
-                    ))}
-                  </div>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
               <NavigationMenuItem>
                 <Link href="/resume-analyzer" legacyBehavior passHref>
                   <NavigationMenuLink className={navigationMenuTriggerStyle()}>
@@ -103,9 +79,9 @@ export function AppHeader() {
                 </Link>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                 <Link href="#" legacyBehavior passHref>
-                   <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), "disabled:opacity-50 cursor-not-allowed")}>
-                      Jobs
+                 <Link href="/past-interviews" legacyBehavior passHref>
+                   <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                      Past Interviews
                    </NavigationMenuLink>
                  </Link>
               </NavigationMenuItem>
