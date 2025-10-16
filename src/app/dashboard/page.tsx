@@ -42,7 +42,7 @@ export default function DashboardPage() {
             </h1>
             <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl mt-4">
               AI mock interviews with personalized practice and real-time
-              analytics - everything on Remasto
+              analytics - everything on SiliconAI
             </p>
             <div className="mt-12">
               <Card className="max-w-4xl mx-auto p-4 bg-card shadow-lg border-gray-200">
@@ -93,7 +93,7 @@ export default function DashboardPage() {
                 </CardContent>
               </Card>
               <Link
-                href="/report/1"
+                href="/report/mock"
                 className="mt-8 inline-block text-primary underline"
               >
                 View sample analytics

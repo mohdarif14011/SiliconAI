@@ -8,6 +8,8 @@ import {
   signInWithPopup,
   GoogleAuthProvider,
   User,
+  getRedirectResult,
+  signInWithRedirect,
 } from 'firebase/auth';
 import { useAuth, useFirestore } from '@/firebase';
 import { doc, setDoc, serverTimestamp, getDoc } from 'firebase/firestore';
@@ -24,7 +26,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { FirebaseError } from 'firebase/app';
 import { Loader2 } from 'lucide-react';
 
@@ -34,11 +36,32 @@ export default function LoginPage() {
   const auth = useAuth();
   const firestore = useFirestore();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [resetEmail, setResetEmail] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Start as true to handle redirect
+
+  const redirectPath = searchParams.get('redirect') || '/dashboard';
+
+  // Handle redirect result from Google Sign-In
+  useEffect(() => {
+    getRedirectResult(auth)
+      .then(async (result) => {
+        if (result && result.user) {
+          toast({ title: 'Success', description: "You're logged in." });
+          await createUserProfileDocument(result.user);
+          router.push(redirectPath);
+        } else {
+            setIsLoading(false); // No redirect result, stop loading
+        }
+      })
+      .catch((error) => {
+        handleAuthError(error as FirebaseError);
+        setIsLoading(false); // Stop loading on error
+      });
+  }, [auth, router, redirectPath, toast]);
 
 
   const handleAuthError = (error: FirebaseError) => {
@@ -48,6 +71,11 @@ export default function LoginPage() {
     // Do not show a toast if the user cancelled the popup
     if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
       return;
+    }
+
+    // Don't show an error if a redirect is in progress
+    if (error.code === 'auth/redirect-pending') {
+        return;
     }
 
     let description = 'An unexpected error occurred. Please try again.';
@@ -103,7 +131,7 @@ export default function LoginPage() {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       toast({ title: 'Success', description: "You're logged in." });
-      router.push('/dashboard');
+      router.push(redirectPath);
     } catch (error) {
       handleAuthError(error as FirebaseError);
     } finally {
@@ -117,7 +145,7 @@ export default function LoginPage() {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       await createUserProfileDocument(userCredential.user);
       toast({ title: 'Welcome!', description: 'Your account has been created.' });
-      router.push('/dashboard');
+      router.push(redirectPath);
     } catch (error) {
       handleAuthError(error as FirebaseError);
     } finally {
@@ -131,12 +159,20 @@ export default function LoginPage() {
       const result = await signInWithPopup(auth, provider);
       await createUserProfileDocument(result.user);
       toast({ title: 'Success', description: "You're logged in." });
-      router.push('/dashboard');
+      router.push(redirectPath);
     } catch (error) {
-      handleAuthError(error as FirebaseError);
-    } finally {
-      setIsLoading(false);
+       if (error instanceof FirebaseError && (error.code === 'auth/popup-blocked' || error.code === 'auth/cancelled-popup-request')) {
+         toast({
+           title: 'Redirecting for Sign-In',
+           description: 'Your browser blocked the pop-up. We are redirecting you to complete the sign-in process.',
+         });
+         // Fallback to redirect method
+         signInWithRedirect(auth, provider);
+       } else {
+        handleAuthError(error as FirebaseError);
+       }
     }
+    // We don't setIsLoading(false) here because a redirect might be in progress
   };
 
   const handlePasswordReset = async () => {
