@@ -28,7 +28,7 @@ import { ROLES, VlsiRole } from '@/lib/data';
 import { useUser } from '@/firebase';
 import { getAuth, signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
-import { Cpu, LayoutGrid, ShieldCheck, LogOut, History } from 'lucide-react';
+import { Cpu, LayoutGrid, ShieldCheck, LogOut, History, ChevronDown } from 'lucide-react';
 
 const icons: { [key: string]: React.ElementType } = {
   'design-engineer': Cpu,
@@ -67,23 +67,30 @@ export function AppHeader() {
           </Link>
           <NavigationMenu>
             <NavigationMenuList>
-              <NavigationMenuItem>
-                <NavigationMenuTrigger>Interviews</NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
-                    {ROLES.map(role => (
-                      <ListItem
-                        key={role.name}
-                        title={role.name}
-                        href={`/interview/${role.slug}`}
-                        icon={icons[role.slug]}
-                      >
-                        {role.description}
-                      </ListItem>
-                    ))}
-                  </ul>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
+               <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                   <Button variant="ghost" className={cn(navigationMenuTriggerStyle(), 'gap-1')}>
+                    Interviews <ChevronDown className="h-3 w-3" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-[500px]" align="start">
+                    <div className="grid w-full grid-cols-2 gap-3 p-2">
+                      {ROLES.map(role => (
+                        <ListItem
+                          key={role.name}
+                          title={role.name}
+                          href={`/interview/${role.slug}`}
+                          icon={icons[role.slug]}
+                          onClick={() => router.push(`/interview/${role.slug}`)}
+                          className="cursor-pointer"
+                        >
+                          {role.description}
+                        </ListItem>
+                      ))}
+                    </div>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
               <NavigationMenuItem>
                 <Link href="/past-interviews" legacyBehavior passHref>
                   <NavigationMenuLink className={navigationMenuTriggerStyle()}>
