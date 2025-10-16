@@ -40,7 +40,8 @@ import * as Tone from "tone";
 import { conductInterview, ConductInterviewOutput } from "@/ai/ai-role-based-interview-simulation";
 import { textToSpeech } from "@/ai/ai-text-to-speech";
 import { useToast } from "@/hooks/use-toast";
-import { Skeleton } from "@/components/ui/skeleton";
+import { SpeakingAnimation } from "@/components/ai/speaking-animation";
+import "./../speaking-animation.css";
 
 type InterviewStatus =
   | "idle"
@@ -318,7 +319,9 @@ export default function InterviewPage() {
               </CardHeader>
               <CardContent>
                 {status === 'speaking' ? (
-                   <Skeleton className="h-6 w-full" />
+                   <div className="flex justify-center items-center py-4">
+                      <SpeakingAnimation />
+                   </div>
                 ) : (
                    <p className="text-lg font-medium">{currentAIResponse?.aiResponse}</p>
                 )}
@@ -431,5 +434,3 @@ export default function InterviewPage() {
     </div>
   );
 }
-
-    
