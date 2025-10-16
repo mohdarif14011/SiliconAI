@@ -91,27 +91,27 @@ export function AppHeader() {
               </DropdownMenu>
 
               <NavigationMenuItem>
-                <Link href="/past-interviews" passHref>
-                  <NavigationMenuLink asChild>
-                    <a className={navigationMenuTriggerStyle()}>Past Interviews</a>
+                <Link href="/past-interviews" legacyBehavior passHref>
+                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    Past Interviews
                   </NavigationMenuLink>
                 </Link>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                <Link href="/resume-analyzer" passHref>
-                  <NavigationMenuLink asChild>
-                    <a className={navigationMenuTriggerStyle()}>Resume</a>
+                <Link href="/resume-analyzer" legacyBehavior passHref>
+                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    Resume
                   </NavigationMenuLink>
                 </Link>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                 <NavigationMenuLink asChild>
-                    <a className={cn(navigationMenuTriggerStyle(), "disabled:opacity-50 cursor-not-allowed")}>Jobs</a>
+                 <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), "disabled:opacity-50 cursor-not-allowed")}>
+                    Jobs
                  </NavigationMenuLink>
               </NavigationMenuItem>
                <NavigationMenuItem>
-                 <NavigationMenuLink asChild>
-                   <a className={cn(navigationMenuTriggerStyle(), "disabled:opacity-50 cursor-not-allowed")}>Pricing</a>
+                 <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), "disabled:opacity-50 cursor-not-allowed")}>
+                   Pricing
                  </NavigationMenuLink>
               </NavigationMenuItem>
             </NavigationMenuList>

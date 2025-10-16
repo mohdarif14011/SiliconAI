@@ -49,6 +49,11 @@ export default function LoginPage() {
   // Handle redirect result from Google Sign-In on page load
   useEffect(() => {
     const handleRedirect = async () => {
+      if (auth.currentUser) {
+        setIsLoading(false);
+        router.push(redirectPath);
+        return;
+      }
       try {
         const result = await getRedirectResult(auth);
         if (result && result.user) {
@@ -58,7 +63,9 @@ export default function LoginPage() {
           return; // Stop further execution
         }
       } catch (error) {
-        handleAuthError(error as FirebaseError);
+        if ((error as FirebaseError).code !== 'auth/redirect-cancelled-by-user') {
+          handleAuthError(error as FirebaseError);
+        }
       }
       // If there's no redirect result, stop the main loading indicator
       setIsLoading(false);
@@ -158,14 +165,19 @@ export default function LoginPage() {
   };
 
   const handleGoogleSignIn = async () => {
-    setIsSubmitting(true); // Show loading state
-    // We use redirect as it's more reliable and avoids popup blockers.
-    // The result is handled by the useEffect hook.
-    signInWithRedirect(auth, provider).catch(handleAuthError);
+    setIsSubmitting(true);
+    try {
+      const result = await signInWithPopup(auth, provider);
+      await createUserProfileDocument(result.user);
+      toast({ title: 'Success', description: "You're logged in." });
+      router.push(redirectPath);
+    } catch (error) {
+       handleAuthError(error as FirebaseError);
+    }
   };
 
-  const handlePasswordReset = async () => {
-    if (!resetEmail) {
+  const handlePasswordReset = async (emailForReset: string) => {
+    if (!emailForReset) {
       toast({
         variant: 'destructive',
         title: 'Error',
@@ -175,7 +187,7 @@ export default function LoginPage() {
     }
     setIsSubmitting(true);
     try {
-      await sendPasswordResetEmail(auth, resetEmail);
+      await sendPasswordResetEmail(auth, emailForReset);
       toast({
         title: 'Password Reset Email Sent',
         description: 'Check your inbox for instructions to reset your password.',
@@ -237,7 +249,7 @@ export default function LoginPage() {
                 {isSubmitting ? <Loader2 className="animate-spin" /> : 'Sign In'}
               </Button>
               <Button onClick={handleGoogleSignIn} variant="outline" className="w-full" disabled={isSubmitting}>
-                Sign In with Google
+                 {isSubmitting ? <Loader2 className="animate-spin" /> : 'Sign In with Google'}
               </Button>
             </CardContent>
             <CardFooter className="text-center text-sm">
@@ -249,8 +261,7 @@ export default function LoginPage() {
                             'Please enter your email to reset your password:'
                         );
                         if (emailForReset) {
-                            setResetEmail(emailForReset);
-                            handlePasswordReset(); // Call the async function
+                           handlePasswordReset(emailForReset);
                         }
                         }}
                         className="underline"
@@ -296,7 +307,7 @@ export default function LoginPage() {
                 {isSubmitting ? <Loader2 className="animate-spin" /> : 'Sign Up'}
               </Button>
               <Button onClick={handleGoogleSignIn} variant="outline" className="w-full" disabled={isSubmitting}>
-                Sign Up with Google
+                {isSubmitting ? <Loader2 className="animate-spin" /> : 'Sign Up with Google'}
               </Button>
             </CardContent>
           </Card>
@@ -305,5 +316,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
-    
