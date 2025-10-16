@@ -1,13 +1,14 @@
 
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
-  signInWithPopup,
+  signInWithRedirect,
   GoogleAuthProvider,
   User,
+  getRedirectResult,
 } from 'firebase/auth';
 import { useAuth, useFirestore } from '@/firebase';
 import { doc, setDoc, serverTimestamp, getDoc } from 'firebase/firestore';
@@ -26,6 +27,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { FirebaseError } from 'firebase/app';
+import { Loader2 } from 'lucide-react';
 
 const provider = new GoogleAuthProvider();
 
@@ -37,6 +39,27 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [resetEmail, setResetEmail] = useState('');
+  const [isProcessingRedirect, setIsProcessingRedirect] = useState(true);
+
+
+  useEffect(() => {
+    const processRedirect = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        if (result && result.user) {
+          await createUserProfileDocument(result.user);
+          toast({ title: 'Success', description: "You're logged in." });
+          router.push('/dashboard');
+        } else {
+            setIsProcessingRedirect(false);
+        }
+      } catch (error) {
+        handleAuthError(error as FirebaseError);
+        setIsProcessingRedirect(false);
+      }
+    };
+    processRedirect();
+  }, [auth, router, toast]);
 
   const handleAuthError = (error: FirebaseError) => {
     console.error('Firebase Auth Error:', error.code, error.message);
@@ -54,6 +77,10 @@ export default function LoginPage() {
         break;
       case 'auth/invalid-email':
         description = 'Please enter a valid email address.';
+        break;
+      case 'auth/popup-blocked':
+      case 'auth/cancelled-popup-request':
+        description = 'The sign-in popup was blocked or cancelled. Please try again.';
         break;
       default:
         description = error.message;
@@ -111,10 +138,7 @@ export default function LoginPage() {
 
   const handleGoogleSignIn = async () => {
     try {
-      const userCredential = await signInWithPopup(auth, provider);
-      await createUserProfileDocument(userCredential.user);
-      toast({ title: 'Success', description: "You're logged in with Google." });
-      router.push('/dashboard');
+      await signInWithRedirect(auth, provider);
     } catch (error) {
       handleAuthError(error as FirebaseError);
     }
@@ -139,6 +163,15 @@ export default function LoginPage() {
       handleAuthError(error as FirebaseError);
     }
   };
+
+  if (isProcessingRedirect) {
+    return (
+        <div className="flex items-center justify-center min-h-[calc(100vh-150px)]">
+            <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        </div>
+    )
+  }
+
 
   return (
     <div className="flex items-center justify-center min-h-[calc(100vh-150px)] bg-background p-4">
