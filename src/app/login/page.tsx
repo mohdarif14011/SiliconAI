@@ -1,14 +1,13 @@
 
 'use client';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
-  signInWithRedirect,
+  signInWithPopup,
   GoogleAuthProvider,
   User,
-  getRedirectResult,
 } from 'firebase/auth';
 import { useAuth, useFirestore } from '@/firebase';
 import { doc, setDoc, serverTimestamp, getDoc } from 'firebase/firestore';
@@ -39,29 +38,11 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [resetEmail, setResetEmail] = useState('');
-  const [isProcessingRedirect, setIsProcessingRedirect] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
-
-  useEffect(() => {
-    const processRedirect = async () => {
-      try {
-        const result = await getRedirectResult(auth);
-        if (result && result.user) {
-          await createUserProfileDocument(result.user);
-          toast({ title: 'Success', description: "You're logged in." });
-          router.push('/dashboard');
-        } else {
-            setIsProcessingRedirect(false);
-        }
-      } catch (error) {
-        handleAuthError(error as FirebaseError);
-        setIsProcessingRedirect(false);
-      }
-    };
-    processRedirect();
-  }, [auth, router, toast]);
 
   const handleAuthError = (error: FirebaseError) => {
+    setIsLoading(false);
     console.error('Firebase Auth Error:', error.code, error.message);
     let description = 'An unexpected error occurred. Please try again.';
     switch (error.code) {
@@ -116,16 +97,20 @@ export default function LoginPage() {
 
 
   const handleSignIn = async () => {
+    setIsLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
       toast({ title: 'Success', description: "You're logged in." });
       router.push('/dashboard');
     } catch (error) {
       handleAuthError(error as FirebaseError);
+    } finally {
+        setIsLoading(false);
     }
   };
 
   const handleSignUp = async () => {
+    setIsLoading(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       await createUserProfileDocument(userCredential.user);
@@ -133,14 +118,22 @@ export default function LoginPage() {
       router.push('/dashboard');
     } catch (error) {
       handleAuthError(error as FirebaseError);
+    } finally {
+        setIsLoading(false);
     }
   };
 
   const handleGoogleSignIn = async () => {
+    setIsLoading(true);
     try {
-      await signInWithRedirect(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+      await createUserProfileDocument(result.user);
+      toast({ title: 'Success', description: "You're logged in." });
+      router.push('/dashboard');
     } catch (error) {
       handleAuthError(error as FirebaseError);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -164,7 +157,7 @@ export default function LoginPage() {
     }
   };
 
-  if (isProcessingRedirect) {
+  if (isLoading) {
     return (
         <div className="flex items-center justify-center min-h-[calc(100vh-150px)]">
             <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -197,6 +190,7 @@ export default function LoginPage() {
                   placeholder="m@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  disabled={isLoading}
                 />
               </div>
               <div className="space-y-2">
@@ -206,12 +200,13 @@ export default function LoginPage() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  disabled={isLoading}
                 />
               </div>
-              <Button onClick={handleSignIn} className="w-full">
-                Sign In
+              <Button onClick={handleSignIn} className="w-full" disabled={isLoading}>
+                {isLoading ? <Loader2 className="animate-spin" /> : 'Sign In'}
               </Button>
-              <Button onClick={handleGoogleSignIn} variant="outline" className="w-full">
+              <Button onClick={handleGoogleSignIn} variant="outline" className="w-full" disabled={isLoading}>
                 Sign In with Google
               </Button>
             </CardContent>
@@ -253,6 +248,7 @@ export default function LoginPage() {
                   placeholder="m@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  disabled={isLoading}
                 />
               </div>
               <div className="space-y-2">
@@ -262,12 +258,13 @@ export default function LoginPage() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  disabled={isLoading}
                 />
               </div>
-              <Button onClick={handleSignUp} className="w-full">
-                Sign Up
+              <Button onClick={handleSignUp} className="w-full" disabled={isLoading}>
+                {isLoading ? <Loader2 className="animate-spin" /> : 'Sign Up'}
               </Button>
-              <Button onClick={handleGoogleSignIn} variant="outline" className="w-full">
+              <Button onClick={handleGoogleSignIn} variant="outline" className="w-full" disabled={isLoading}>
                 Sign Up with Google
               </Button>
             </CardContent>
