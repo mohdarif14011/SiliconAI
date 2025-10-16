@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useRef, useEffect } from "react";
@@ -5,7 +6,6 @@ import { useParams, useRouter } from "next/navigation";
 import { ROLES, type VlsiRole } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import {
   Mic,
   Square,
@@ -14,7 +14,6 @@ import {
   XCircle,
   Settings2,
   Volume2,
-  Info,
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { PageHeader } from "@/components/layout/page-header";
@@ -39,7 +38,8 @@ import { conductInterview, ConductInterviewOutput } from "@/ai/ai-role-based-int
 import { textToSpeech } from "@/ai/ai-text-to-speech";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-
+import { SpeakingAnimation } from "@/components/ai/speaking-animation";
+import TypewriterEffect from "@/components/ai/typewriter-effect";
 
 type InterviewStatus =
   | "idle"
@@ -58,7 +58,7 @@ export default function InterviewPage() {
   const params = useParams();
   const { toast } = useToast();
   const roleSlug = params.roleSlug as string;
-  const initialRole = ROLES.find((r) => r.slug === roleSlug) as VlsiRole;
+  const initialRole = ROLES.find((r) => r.slug === roleSlug);
 
   const [status, setStatus] = useState<InterviewStatus>("idle");
   const [questionCount, setQuestionCount] = useState(0);
@@ -66,35 +66,48 @@ export default function InterviewPage() {
   const [currentAIResponse, setCurrentAIResponse] = useState<ConductInterviewOutput | null>(null);
   const [noisePlayer, setNoisePlayer] = useState<Tone.Noise | null>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const [selectedVoice, setSelectedVoice] = useState("en-US-Standard-C");
-  const [role, setRole] = useState<VlsiRole>(initialRole);
+  
+  const [selectedRole, setSelectedRole] = useState<VlsiRole | undefined>(initialRole);
+  const [selectedLevel, setSelectedLevel] = useState("entry");
+  const [selectedRound, setSelectedRound] = useState("technical");
+  const [selectedVoice, setSelectedVoice] = useState("vindemiatrix");
+
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioPlayerRef = useRef<HTMLAudioElement | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  const audioFinishedRef = useRef(false);
+  const typewriterFinishedRef = useRef(false);
 
   useEffect(() => {
-    // Initialize audio player on component mount
     audioPlayerRef.current = new Audio();
-
-    // Clean up on unmount
     return () => {
       noisePlayer?.dispose();
-      // Ensure media stream tracks are stopped to release the microphone
       mediaRecorderRef.current?.stream?.getTracks().forEach(track => track.stop());
     };
-  }, [noisePlayer]); // Re-run effect if noisePlayer changes
+  }, [noisePlayer]);
+
+  const transitionToListen = () => {
+    if (audioFinishedRef.current && typewriterFinishedRef.current) {
+      setStatus("listening");
+    }
+  }
 
   const playAudio = (audioDataUri: string) => {
     if (audioPlayerRef.current) {
+      audioFinishedRef.current = false;
       audioPlayerRef.current.src = audioDataUri;
       audioPlayerRef.current.play();
-      audioPlayerRef.current.onended = () => setStatus("listening");
+      audioPlayerRef.current.onended = () => {
+        audioFinishedRef.current = true;
+        transitionToListen();
+      };
     }
   };
 
   const speakAndListen = async (text: string) => {
     setStatus("speaking");
+    typewriterFinishedRef.current = false;
     try {
       const { audioDataUri } = await textToSpeech({ text, voiceName: selectedVoice });
       playAudio(audioDataUri);
@@ -105,14 +118,18 @@ export default function InterviewPage() {
         title: "AI Voice Error",
         description: "Could not generate AI speech. Please try again.",
       });
-      setStatus("idle"); // Revert to idle to allow a retry
+      setStatus("idle");
     }
   };
 
   const handleStartInterview = async () => {
+    if (!selectedRole) {
+        toast({ variant: "destructive", title: "Please select a role."});
+        return;
+    }
     setStatus("starting");
     try {
-      const initialResponse = await conductInterview({ jobRole: role.name, studentResponse: "none" });
+      const initialResponse = await conductInterview({ jobRole: selectedRole.name, studentResponse: "none" });
       setCurrentAIResponse(initialResponse);
       setTranscript(initialResponse.transcript);
       setQuestionCount(1);
@@ -156,9 +173,10 @@ export default function InterviewPage() {
         reader.readAsDataURL(audioBlob);
         reader.onloadend = async () => {
           const base64Audio = reader.result as string;
+          if (!selectedRole) return;
           try {
             const response = await conductInterview({
-              jobRole: role.name,
+              jobRole: selectedRole.name,
               studentResponse: base64Audio,
               previousTranscript: transcript,
             });
@@ -194,17 +212,18 @@ export default function InterviewPage() {
   };
 
   const handleEndInterview = () => {
-    // Store the final transcript to generate the report on the next page
-    localStorage.setItem("latestInterviewTranscript", transcript);
-    localStorage.setItem("latestInterviewRole", role.name);
-    router.push(`/report/latest`);
+    if (selectedRole) {
+        localStorage.setItem("latestInterviewTranscript", transcript);
+        localStorage.setItem("latestInterviewRole", selectedRole.name);
+        router.push(`/report/latest`);
+    }
   };
 
   const handleNoiseChange = (value: string) => {
     noisePlayer?.dispose();
     if (value !== "none") {
       const noise = new Tone.Noise(value as "white" | "pink" | "brown").toDestination();
-      noise.volume.value = -20; // Lower volume for background noise
+      noise.volume.value = -20;
       noise.start();
       setNoisePlayer(noise);
     } else {
@@ -220,33 +239,51 @@ export default function InterviewPage() {
             <Card>
               <CardHeader className="text-center">
                 <CardTitle className="text-2xl">Ready for your mock interview?</CardTitle>
-                <CardDescription>You'll be speaking with an AI interviewer for the {role.name} role.</CardDescription>
+                <CardDescription>Configure your interview and start practicing.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                
-                <Card className="bg-accent/50 border-dashed">
-                  <CardHeader className="flex-row items-center gap-3 pb-2">
-                    <Info className="h-5 w-5 text-primary" />
-                    <CardTitle className="text-lg">Interview Details</CardTitle>
-                  </CardHeader>
-                  <CardContent className="text-sm space-y-2 text-muted-foreground pt-2">
-                      <p><strong>Role:</strong> {role.name}</p>
-                      <p><strong>Questions:</strong> {MAX_QUESTIONS} technical & behavioral questions</p>
-                      <p><strong>Format:</strong> Voice-based conversation</p>
-                  </CardContent>
-                </Card>
-                
-                <div className="space-y-2">
-                  <Label>AI Voice Accent</Label>
-                  <Select value={selectedVoice} onValueChange={setSelectedVoice}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select an accent" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="en-US-Standard-C">American Accent</SelectItem>
-                      <SelectItem value="en-IN-Standard-B">Indian Accent</SelectItem>
-                    </SelectContent>
-                  </Select>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                        <Label>Role</Label>
+                        <Select value={selectedRole?.slug} onValueChange={(slug) => setSelectedRole(ROLES.find(r => r.slug === slug))}>
+                            <SelectTrigger><SelectValue placeholder="Select a role..." /></SelectTrigger>
+                            <SelectContent>
+                                {ROLES.map((role) => <SelectItem key={role.slug} value={role.slug}>{role.name}</SelectItem>)}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="space-y-2">
+                        <Label>Level</Label>
+                        <Select value={selectedLevel} onValueChange={setSelectedLevel}>
+                             <SelectTrigger><SelectValue placeholder="Select level" /></SelectTrigger>
+                             <SelectContent>
+                                <SelectItem value="entry">Entry Level</SelectItem>
+                                <SelectItem value="intermediate">Intermediate</SelectItem>
+                                <SelectItem value="senior">Senior</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                     <div className="space-y-2">
+                        <Label>Round</Label>
+                        <Select value={selectedRound} onValueChange={setSelectedRound}>
+                            <SelectTrigger><SelectValue placeholder="Select round" /></SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="technical">Technical</SelectItem>
+                                <SelectItem value="behavioral">Behavioral</SelectItem>
+                                <SelectItem value="mixed">Mixed</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="space-y-2">
+                        <Label>AI Voice</Label>
+                        <Select value={selectedVoice} onValueChange={setSelectedVoice}>
+                            <SelectTrigger><SelectValue placeholder="Select a voice" /></SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="vindemiatrix">Voice 1 (Female)</SelectItem>
+                                <SelectItem value="rasalgethi">Voice 2 (Male)</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
                 </div>
                 <Button onClick={handleStartInterview} size="lg" className="w-full">
                   Begin Interview
@@ -276,12 +313,21 @@ export default function InterviewPage() {
               <CardHeader>
                 <CardTitle>AI Interviewer</CardTitle>
               </CardHeader>
-              <CardContent>
-                {status === 'speaking' ? (
-                  <div className="space-y-2">
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-3/4" />
+              <CardContent className="min-h-[120px] flex items-center justify-center">
+                 {status === 'speaking' ? (
+                  <div className="flex items-center gap-6 w-full">
+                     <div className="flex-shrink-0">
+                       <SpeakingAnimation />
+                     </div>
+                     <div className="flex-1">
+                        <TypewriterEffect 
+                          text={currentAIResponse?.aiResponse ?? ""} 
+                          onComplete={() => {
+                            typewriterFinishedRef.current = true;
+                            transitionToListen();
+                          }}
+                        />
+                     </div>
                   </div>
                 ) : (
                   <p className="text-lg font-medium">{currentAIResponse?.aiResponse}</p>
@@ -340,11 +386,12 @@ export default function InterviewPage() {
     }
   };
 
-  if (!role) {
+  if (!selectedRole && status === 'idle') {
     return (
       <div className="flex min-h-screen w-full flex-col items-center justify-center gap-4">
         <XCircle className="h-12 w-12 text-destructive" />
         <h1 className="text-2xl font-bold">Role not found</h1>
+        <p className="text-muted-foreground">The role "{roleSlug}" does not exist. Please select a valid role.</p>
         <Button asChild>
           <a href="/dashboard">Go to Dashboard</a>
         </Button>
@@ -354,7 +401,7 @@ export default function InterviewPage() {
 
   return (
     <div className="flex min-h-screen w-full flex-col">
-       <PageHeader title={`${role.name} Interview`} />
+       <PageHeader title={`${selectedRole?.name ?? 'Interview'} `} />
        <main className="flex flex-1 flex-col items-center justify-center p-4">
          {renderContent()}
       </main>
@@ -395,3 +442,5 @@ export default function InterviewPage() {
     </div>
   );
 }
+
+    
