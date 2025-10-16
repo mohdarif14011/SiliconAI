@@ -59,7 +59,7 @@ export default function InterviewPage() {
   const params = useParams();
   const { toast } = useToast();
   const roleSlug = params.roleSlug as string;
-  const role = ROLES.find((r) => r.slug === roleSlug) as VlsiRole;
+  const initialRole = ROLES.find((r) => r.slug === roleSlug) as VlsiRole;
 
   const [status, setStatus] = useState<InterviewStatus>("idle");
   const [questionCount, setQuestionCount] = useState(0);
@@ -68,6 +68,7 @@ export default function InterviewPage() {
   const [noisePlayer, setNoisePlayer] = useState<Tone.Noise | null>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [selectedVoice, setSelectedVoice] = useState("en-US-Standard-C");
+  const [role, setRole] = useState<VlsiRole>(initialRole);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioPlayerRef = useRef<HTMLAudioElement | null>(null);
@@ -80,6 +81,15 @@ export default function InterviewPage() {
       mediaRecorderRef.current?.stream?.getTracks().forEach(track => track.stop());
     };
   }, [noisePlayer]);
+
+  const handleRoleChange = (slug: string) => {
+    const newRole = ROLES.find((r) => r.slug === slug);
+    if (newRole) {
+      setRole(newRole);
+      // Update URL without navigating
+      window.history.replaceState(null, '', `/interview/${slug}`);
+    }
+  };
 
   const playAudio = (audioDataUri: string) => {
     return new Promise<void>((resolve) => {
@@ -222,39 +232,61 @@ export default function InterviewPage() {
                 <CardDescription>You'll be speaking with an AI interviewer for the {role.name} role.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <Card className="bg-accent/50 border-accent">
-                   <CardContent className="p-4 space-y-3">
-                     <div className="flex items-center gap-4">
-                        <Info className="h-5 w-5 text-primary" />
-                        <h4 className="font-semibold">Interview Details</h4>
-                     </div>
-                     <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                        <li>
-                            <span className="font-semibold text-foreground">Role:</span> {role.name}
-                        </li>
-                        <li>
-                            <span className="font-semibold text-foreground">Questions:</span> {MAX_QUESTIONS} technical questions
-                        </li>
-                        <li>
-                            <span className="font-semibold text-foreground">Format:</span> Voice-based Q&A
-                        </li>
-                     </ul>
-                   </CardContent>
-                </Card>
-
-                <div className="space-y-2">
-                  <Label>AI Voice Accent</Label>
-                  <Select value={selectedVoice} onValueChange={setSelectedVoice}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select an accent" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="en-US-Standard-C">American Accent</SelectItem>
-                      <SelectItem value="en-IN-Standard-B">Indian Accent</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
                 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Role</Label>
+                    <Select value={role.slug} onValueChange={handleRoleChange}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a role" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {ROLES.map((r) => (
+                           <SelectItem key={r.slug} value={r.slug}>{r.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Level</Label>
+                    <Select defaultValue="intermediate">
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select level" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="entry">Entry Level</SelectItem>
+                        <SelectItem value="intermediate">Intermediate</SelectItem>
+                        <SelectItem value="senior">Senior</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Round</Label>
+                    <Select defaultValue="technical">
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select round" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="technical">Technical</SelectItem>
+                        <SelectItem value="behavioral">Behavioral</SelectItem>
+                        <SelectItem value="mixed">Mixed</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                   <div className="space-y-2">
+                      <Label>AI Voice Accent</Label>
+                      <Select value={selectedVoice} onValueChange={setSelectedVoice}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select an accent" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="en-US-Standard-C">American Accent</SelectItem>
+                          <SelectItem value="en-IN-Standard-B">Indian Accent</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                </div>
+
                 <Button onClick={handleStartInterview} size="lg" className="w-full">
                   Begin Interview
                 </Button>
@@ -399,3 +431,5 @@ export default function InterviewPage() {
     </div>
   );
 }
+
+    
