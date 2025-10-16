@@ -167,10 +167,9 @@ export default function LoginPage() {
   const handleGoogleSignIn = async () => {
     setIsSubmitting(true);
     try {
-      const result = await signInWithPopup(auth, provider);
-      await createUserProfileDocument(result.user);
-      toast({ title: 'Success', description: "You're logged in." });
-      router.push(redirectPath);
+      // Use signInWithRedirect for a more robust flow
+      await signInWithRedirect(auth, provider);
+      // The page will redirect, and the result will be handled by the useEffect hook
     } catch (error) {
        handleAuthError(error as FirebaseError);
     }
