@@ -147,28 +147,28 @@ export function AppHeader() {
               </NavigationMenuContent>
             </NavigationMenuItem>
             <NavigationMenuItem>
-              <Link href="/past-interviews" legacyBehavior={false} passHref>
+              <Link href="/past-interviews" legacyBehavior passHref>
                 <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                   Past Interviews
                 </NavigationMenuLink>
               </Link>
             </NavigationMenuItem>
             <NavigationMenuItem>
-               <Link href="/resume-analyzer" legacyBehavior={false} passHref>
+               <Link href="/resume-analyzer" legacyBehavior passHref>
                 <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                   Resume
                 </NavigationMenuLink>
               </Link>
             </NavigationMenuItem>
             <NavigationMenuItem>
-              <Link href="#" legacyBehavior={false} passHref>
+              <Link href="#" legacyBehavior passHref>
                 <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                   Jobs
                 </NavigationMenuLink>
               </Link>
             </NavigationMenuItem>
             <NavigationMenuItem>
-              <Link href="#" legacyBehavior={false} passHref>
+              <Link href="#" legacyBehavior passHref>
                 <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                   Pricing
                 </NavigationMenuLink>
@@ -248,3 +248,5 @@ const ListItem = React.forwardRef<
   );
 });
 ListItem.displayName = "ListItem";
+
+    
