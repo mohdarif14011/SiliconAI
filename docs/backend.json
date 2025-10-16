@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "User": {
@@ -34,6 +35,57 @@
         "id",
         "email"
       ]
+    },
+    "Interview": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Interview",
+      "type": "object",
+      "description": "Represents a completed mock interview session and its performance report.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Interview entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "The UID of the user who completed the interview."
+        },
+        "role": {
+          "type": "string",
+          "description": "The VLSI job role for which the interview was conducted."
+        },
+        "date": {
+          "type": "string",
+          "description": "The date and time the interview was completed.",
+          "format": "date-time"
+        },
+        "overallScore": {
+          "type": "number",
+          "description": "The overall performance score (0-100)."
+        },
+        "strengths": {
+          "type": "string",
+          "description": "A summary of the candidate's strengths."
+        },
+        "areasForImprovement": {
+          "type": "string",
+          "description": "A summary of areas where the candidate can improve."
+        },
+        "actionableFeedback": {
+          "type": "string",
+          "description": "Specific, actionable feedback for the user."
+        },
+        "transcript": {
+            "type": "string",
+            "description": "The full transcript of the interview."
+        }
+      },
+      "required": [
+        "userId",
+        "role",
+        "date",
+        "overallScore"
+      ]
     }
   },
   "auth": {
@@ -52,7 +104,7 @@
           "schema": {
             "$ref": "#/backend/entities/User"
           },
-          "description": "Stores user profile information.  Uses the Firebase Auth UID as the document ID. Path-based ownership ensures only the authenticated user can access their data.",
+          "description": "Stores user profile information. Uses the Firebase Auth UID as the document ID.",
           "params": [
             {
               "name": "userId",
@@ -60,8 +112,28 @@
             }
           ]
         }
+      },
+      {
+        "path": "/users/{userId}/interviews/{interviewId}",
+        "definition": {
+          "entityName": "Interview",
+          "schema": {
+            "$ref": "#/backend/entities/Interview"
+          },
+          "description": "Stores performance reports for each mock interview a user completes. This is a subcollection under the user's document.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The Firebase Auth UID of the user."
+            },
+            {
+              "name": "interviewId",
+              "description": "The unique ID of the interview report."
+            }
+          ]
+        }
       }
     ],
-    "reasoning": "This Firestore structure is designed to support the VLSI Interview Ace platform. User data is stored in a dedicated collection (`/users/{userId}`) to manage profile information. This approach leverages path-based ownership for user data, ensuring that only the authenticated user can access their own profile. The use of the user's `uid` as the document ID also streamlines security rules, making them straightforward and efficient. The `users` collection stores all the information about the user."
+    "reasoning": "This Firestore structure is designed to support the VLSI Interview Ace platform. User data is stored in a dedicated collection (`/users/{userId}`). Interview reports are stored in a subcollection (`/users/{userId}/interviews/{interviewId}`) under each user. This path-based ownership ensures that a user's interview data is directly associated with them and simplifies security rules, allowing users to only access their own reports."
   }
 }

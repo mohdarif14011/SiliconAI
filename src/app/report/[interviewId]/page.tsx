@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -13,20 +14,31 @@ import {
 import { Button } from "@/components/ui/button";
 import { MOCK_REPORT, type InterviewReport } from "@/lib/data";
 import { format } from "date-fns";
-import { CheckCircle, TrendingUp, TrendingDown, RefreshCw, Loader2 } from "lucide-react";
+import { CheckCircle, TrendingUp, TrendingDown, RefreshCw, Loader2, Star } from "lucide-react";
 import Link from "next/link";
 import { generatePerformanceReport } from "@/ai/ai-performance-analytics";
 import { useToast } from "@/hooks/use-toast";
-import { Skeleton } from "@/components/ui/skeleton";
+import { useDoc, useUser, useFirestore, useMemoFirebase } from "@/firebase";
+import { doc, collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 export default function ReportPage() {
   const params = useParams();
   const router = useRouter();
   const { toast } = useToast();
   const interviewId = params.interviewId as string;
+  
+  const { user } = useUser();
+  const firestore = useFirestore();
 
   const [report, setReport] = useState<InterviewReport | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  const interviewDocRef = useMemoFirebase(() => {
+    if (!user || interviewId === 'latest' || interviewId === 'mock') return null;
+    return doc(firestore, `users/${user.uid}/interviews`, interviewId);
+  }, [firestore, user, interviewId]);
+
+  const { data: firestoreReport, isLoading: isFirestoreLoading } = useDoc<InterviewReport>(interviewDocRef);
 
   useEffect(() => {
     const fetchReport = async () => {
@@ -35,50 +47,74 @@ export default function ReportPage() {
         const transcript = localStorage.getItem("latestInterviewTranscript");
         const role = localStorage.getItem("latestInterviewRole");
 
-        if (transcript && role) {
+        if (transcript && role && user) {
           try {
             const performanceData = await generatePerformanceReport({
               interviewTranscript: transcript,
               selectedRole: role,
             });
-            const newReport: InterviewReport = {
-              id: "latest",
+
+            const newReport: Omit<InterviewReport, 'id'> = {
               role: role,
               date: new Date().toISOString(),
               overallScore: performanceData.overallScore,
               summary: "This is an AI generated summary of your performance.",
               strengths: performanceData.strengths,
               areasForImprovement: performanceData.weaknesses,
-              skillFeedback: [], 
-              questionFeedback: [], 
+              skillFeedback: [],
+              questionFeedback: [],
               actionableFeedback: performanceData.actionableFeedback,
+              userId: user.uid,
+              transcript: transcript,
             };
-            setReport(newReport);
+
+            // Save to Firestore
+            const docRef = await addDoc(collection(firestore, `users/${user.uid}/interviews`), newReport);
+            
+            // Clear local storage
+            localStorage.removeItem("latestInterviewTranscript");
+            localStorage.removeItem("latestInterviewRole");
+
+            // Redirect to the newly created report page
+            router.replace(`/report/${docRef.id}`);
+
           } catch (error) {
-            console.error("Error generating performance report:", error);
+            console.error("Error generating or saving performance report:", error);
             toast({
               variant: "destructive",
               title: "Report Generation Failed",
-              description: "Could not generate your performance report.",
+              description: "Could not generate or save your performance report.",
             });
-            // Fallback to mock report on error
-            setReport(MOCK_REPORT);
+            setReport(MOCK_REPORT); // Fallback to mock
+            setIsLoading(false);
           }
         } else {
-           // If no latest interview, show mock data
+           // If no latest interview data, show mock data
+           toast({ title: "No interview data found", description: "Displaying a sample report."});
            setReport(MOCK_REPORT);
+           setIsLoading(false);
         }
-      } else {
-        // For any other ID, show mock data.
+      } else if (interviewId === 'mock') {
         setReport(MOCK_REPORT);
+        setIsLoading(false);
+      } else {
+        // For a specific ID, firestoreReport will be fetched by the useDoc hook
+        if (!isFirestoreLoading) {
+           if (firestoreReport) {
+             setReport(firestoreReport);
+           } else {
+             toast({ variant: 'destructive', title: "Report not found" });
+             setReport(MOCK_REPORT); // Fallback
+           }
+           setIsLoading(false);
+        }
       }
-      setIsLoading(false);
     };
 
     fetchReport();
-  }, [interviewId, toast]);
+  }, [interviewId, toast, user, firestore, router, firestoreReport, isFirestoreLoading]);
 
-  if (isLoading || !report) {
+  if (isLoading || isFirestoreLoading) {
     return (
       <div className="flex min-h-screen w-full flex-col">
         <PageHeader title="Generating Report..." />
@@ -91,6 +127,25 @@ export default function ReportPage() {
       </div>
     );
   }
+
+  if (!report) {
+    // This can happen if the report is not found or on error
+    return (
+      <div className="flex min-h-screen w-full flex-col">
+        <PageHeader title="Error" />
+        <main className="flex flex-1 items-center justify-center p-8 text-center">
+            <div>
+              <h2 className="text-2xl font-bold">Report Not Found</h2>
+              <p className="text-muted-foreground mt-2">We couldn't find the report you were looking for.</p>
+              <Button asChild className="mt-4">
+                <Link href="/dashboard">Go to Dashboard</Link>
+              </Button>
+            </div>
+        </main>
+      </div>
+    )
+  }
+
 
   return (
     <div className="flex min-h-screen w-full flex-col">
@@ -174,7 +229,14 @@ export default function ReportPage() {
               <CardDescription>Specific steps you can take to improve your performance.</CardDescription>
             </CardHeader>
             <CardContent>
-               <p className="text-sm">{report.actionableFeedback}</p>
+              <div className="space-y-3">
+                {report.actionableFeedback.split(/\d+\./).filter(s => s.trim()).map((item, index) => (
+                   <div key={index} className="flex items-start gap-3">
+                        <Star className="h-5 w-5 text-yellow-400 mt-1 flex-shrink-0" />
+                        <p className="text-sm">{item.trim()}</p>
+                    </div>
+                ))}
+              </div>
             </CardContent>
           </Card>
         )}

@@ -1,3 +1,4 @@
+
 import type { LucideIcon } from "lucide-react";
 import { Cpu, ShieldCheck, LayoutGrid } from "lucide-react";
 
@@ -13,7 +14,7 @@ export type Interview = {
   id: string;
   role: string;
   date: string;
-  score: number;
+  overallScore: number;
   roleSlug: string;
 };
 
@@ -41,6 +42,8 @@ export type InterviewReport = {
   skillFeedback: SkillFeedback[];
   questionFeedback: QuestionFeedback[];
   actionableFeedback?: string;
+  userId: string;
+  transcript: string;
 };
 
 export const ROLES: VlsiRole[] = [
@@ -72,27 +75,27 @@ export const INTERVIEWS: Interview[] = [
     id: "1",
     role: "Design Engineer",
     date: "2024-07-20",
-    score: 85,
+    overallScore: 85,
     roleSlug: "design-engineer",
   },
   {
     id: "2",
     role: "Verification Engineer",
     date: "2024-07-18",
-    score: 78,
+    overallScore: 78,
     roleSlug: "verification-engineer",
   },
   {
     id: "3",
     role: "Design Engineer",
     date: "2024-07-15",
-    score: 92,
+    overallScore: 92,
     roleSlug: "design-engineer",
   },
 ];
 
 export const MOCK_REPORT: InterviewReport = {
-    id: "1",
+    id: "mock-1",
     role: "Design Engineer",
     date: "2024-07-21",
     overallScore: 82,
@@ -127,4 +130,6 @@ export const MOCK_REPORT: InterviewReport = {
         }
     ],
     actionableFeedback: "1. Review CDC techniques like 2-FF synchronizers. 2. For your next project, try to quantify the impact of your contributions with specific metrics (e.g., 'reduced power consumption by 15%'). 3. Practice explaining technical concepts to a non-technical audience to improve clarity.",
+    userId: "mock-user",
+    transcript: "This is a mock transcript."
 };
