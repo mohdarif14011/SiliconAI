@@ -39,7 +39,6 @@ import { textToSpeech } from "@/ai/ai-text-to-speech";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SpeakingAnimation } from "@/components/ai/speaking-animation";
-import TypewriterEffect from "@/components/ai/typewriter-effect";
 
 type InterviewStatus =
   | "idle"
@@ -76,8 +75,6 @@ export default function InterviewPage() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioPlayerRef = useRef<HTMLAudioElement | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
-  const audioFinishedRef = useRef(false);
-  const typewriterFinishedRef = useRef(false);
 
   useEffect(() => {
     audioPlayerRef.current = new Audio();
@@ -87,27 +84,18 @@ export default function InterviewPage() {
     };
   }, [noisePlayer]);
 
-  const transitionToListen = () => {
-    if (audioFinishedRef.current && typewriterFinishedRef.current) {
-      setStatus("listening");
-    }
-  }
-
   const playAudio = (audioDataUri: string) => {
     if (audioPlayerRef.current) {
-      audioFinishedRef.current = false;
       audioPlayerRef.current.src = audioDataUri;
       audioPlayerRef.current.play();
       audioPlayerRef.current.onended = () => {
-        audioFinishedRef.current = true;
-        transitionToListen();
+        setStatus("listening");
       };
     }
   };
 
   const speakAndListen = async (text: string) => {
     setStatus("speaking");
-    typewriterFinishedRef.current = false;
     try {
       const { audioDataUri } = await textToSpeech({ text, voiceName: selectedVoice });
       playAudio(audioDataUri);
@@ -315,17 +303,7 @@ export default function InterviewPage() {
               </CardHeader>
               <CardContent className="min-h-[120px] flex items-center justify-center">
                  {status === 'speaking' ? (
-                  <div className="flex items-center gap-6 w-full">
-                     <div className="flex-1">
-                        <TypewriterEffect 
-                          text={currentAIResponse?.aiResponse ?? ""} 
-                          onComplete={() => {
-                            typewriterFinishedRef.current = true;
-                            transitionToListen();
-                          }}
-                        />
-                     </div>
-                  </div>
+                  <p className="text-lg font-medium text-muted-foreground">AI is speaking...</p>
                 ) : (
                   <p className="text-lg font-medium">{currentAIResponse?.aiResponse}</p>
                 )}

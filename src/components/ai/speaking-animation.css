@@ -1,82 +1,51 @@
+.container {
+  height: 300px;
+  width: 300px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
-.loader {
-    --size: 140vmin;
-    --duration: 2.5s;
-    --logo-color: hsl(var(--primary));
-    --background: linear-gradient(
-      0deg,
-      hsl(var(--primary) / 0.2) 0%,
-      hsl(var(--accent) / 0.2) 100%
-    );
-    height: var(--size);
-    aspect-ratio: 1;
-    position: relative;
-    pointer-events: none;
-  }
+.circle {
+  border-radius: 50%;
+  position: absolute;
+  border: 3px solid hsl(var(--primary) / 0.5);
+  animation: pulse 2s infinite;
+}
 
-  .loader .box {
-    position: absolute;
-    background: var(--background);
-    border-radius: 50%;
-    box-shadow:
-      rgba(0, 0, 0, 0.5) 0px 10px 10px 0,
-      inset hsla(var(--primary) / 0.5) 0px 5px 10px -7px;
-    animation: ripple var(--duration) infinite ease-in-out;
-    inset: var(--inset);
-    animation-delay: calc(var(--i) * 0.15s);
-    z-index: calc(var(--i) * -1);
-    pointer-events: all;
-    transition: all 0.3s ease;
-  }
+.circle:nth-child(1) {
+  width: 100px;
+  height: 100px;
+  animation-delay: 0s;
+}
 
-  .loader .box:last-child {
-    filter: blur(30px);
-  }
-  .loader .box:not(:last-child):hover {
-    filter: brightness(2.5) blur(5px);
-  }
+.circle:nth-child(2) {
+  width: 150px;
+  height: 150px;
+  animation-delay: 0.2s;
+}
 
-  .loader .logo {
-    position: absolute;
-    inset: 0;
-    display: grid;
-    place-content: center;
-    padding: 30%;
-  }
+.circle:nth-child(3) {
+  width: 200px;
+  height: 200px;
+  animation-delay: 0.4s;
+}
 
-  .loader .logo svg {
-    fill: var(--logo-color);
-    width: 100%;
-    animation: color-change var(--duration) infinite ease-in-out;
+@keyframes pulse {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.5;
   }
-
-  @keyframes ripple {
-    0% {
-      transform: scale(1);
-      box-shadow:
-        rgba(0, 0, 0, 0.5) 0px 10px 10px 0,
-        inset hsla(var(--primary) / 0.5) 0px 5px 10px -7px;
-    }
-    65% {
-      transform: scale(1.4);
-      box-shadow: rgba(0, 0, 0, 0) 0px 0 0 0;
-    }
-    100% {
-      transform: scale(1);
-      box-shadow:
-        rgba(0, 0, 0, 0.5) 0px 10px 10px 0,
-        inset hsla(var(--primary) / 0.5) 0px 5px 10px -7px;
-    }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
   }
-
-  @keyframes color-change {
-    0% {
-      fill: var(--logo-color);
-    }
-    50% {
-      fill: hsl(var(--primary-foreground));
-    }
-    100% {
-      fill: var(--logo-color);
-    }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
   }
+}
