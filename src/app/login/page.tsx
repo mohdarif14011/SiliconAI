@@ -41,47 +41,48 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [resetEmail, setResetEmail] = useState('');
-  const [isLoading, setIsLoading] = useState(true); // Start as true to handle redirect
+  const [isLoading, setIsLoading] = useState(true); // Start as true to handle redirect check
+  const [isSubmitting, setIsSubmitting] = useState(false); // For form submissions
 
   const redirectPath = searchParams.get('redirect') || '/dashboard';
 
-  // Handle redirect result from Google Sign-In
+  // Handle redirect result from Google Sign-In on page load
   useEffect(() => {
-    getRedirectResult(auth)
-      .then(async (result) => {
+    const handleRedirect = async () => {
+      try {
+        const result = await getRedirectResult(auth);
         if (result && result.user) {
           toast({ title: 'Success', description: "You're logged in." });
           await createUserProfileDocument(result.user);
           router.push(redirectPath);
-        } else {
-            setIsLoading(false); // No redirect result, stop loading
+          return; // Stop further execution
         }
-      })
-      .catch((error) => {
+      } catch (error) {
         handleAuthError(error as FirebaseError);
-        setIsLoading(false); // Stop loading on error
-      });
-  }, [auth, router, redirectPath, toast]);
+      }
+      // If there's no redirect result, stop the main loading indicator
+      setIsLoading(false);
+    };
+    handleRedirect();
+    // The dependency array is intentionally structured this way.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [auth]);
 
 
   const handleAuthError = (error: FirebaseError) => {
-    setIsLoading(false);
+    setIsSubmitting(false); // Always stop submission loading on error
     console.error('Firebase Auth Error:', error.code, error.message);
     
-    // Do not show a toast if the user cancelled the popup
+    // Do not show a toast if the user cancelled the action
     if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
       return;
-    }
-
-    // Don't show an error if a redirect is in progress
-    if (error.code === 'auth/redirect-pending') {
-        return;
     }
 
     let description = 'An unexpected error occurred. Please try again.';
     switch (error.code) {
       case 'auth/user-not-found':
       case 'auth/wrong-password':
+      case 'auth/invalid-credential':
         description = 'Invalid email or password.';
         break;
       case 'auth/email-already-in-use':
@@ -94,7 +95,8 @@ export default function LoginPage() {
         description = 'Please enter a valid email address.';
         break;
       default:
-        description = error.message;
+        // Use a generic message for other errors
+        description = "Sorry, we couldn't sign you in. Please try again.";
     }
     toast({
       variant: 'destructive',
@@ -110,37 +112,41 @@ export default function LoginPage() {
 
     if (!snapshot.exists()) {
       const { email, displayName, photoURL } = user;
-      const createdAt = serverTimestamp();
+      const registrationDate = serverTimestamp();
       try {
         await setDoc(userRef, {
           id: user.uid,
           email,
           displayName,
           photoURL,
-          registrationDate: createdAt,
+          registrationDate,
         });
       } catch (error) {
         console.error("Error creating user profile", error);
+        toast({
+          variant: "destructive",
+          title: "Profile Creation Failed",
+          description: "We couldn't save your user profile. Please contact support."
+        })
       }
     }
   };
 
 
   const handleSignIn = async () => {
-    setIsLoading(true);
+    setIsSubmitting(true);
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      await createUserProfileDocument(userCredential.user);
       toast({ title: 'Success', description: "You're logged in." });
       router.push(redirectPath);
     } catch (error) {
       handleAuthError(error as FirebaseError);
-    } finally {
-        setIsLoading(false);
-    }
+    } 
   };
 
   const handleSignUp = async () => {
-    setIsLoading(true);
+    setIsSubmitting(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       await createUserProfileDocument(userCredential.user);
@@ -148,31 +154,14 @@ export default function LoginPage() {
       router.push(redirectPath);
     } catch (error) {
       handleAuthError(error as FirebaseError);
-    } finally {
-        setIsLoading(false);
     }
   };
 
   const handleGoogleSignIn = async () => {
-    setIsLoading(true);
-    try {
-      const result = await signInWithPopup(auth, provider);
-      await createUserProfileDocument(result.user);
-      toast({ title: 'Success', description: "You're logged in." });
-      router.push(redirectPath);
-    } catch (error) {
-       if (error instanceof FirebaseError && (error.code === 'auth/popup-blocked' || error.code === 'auth/cancelled-popup-request')) {
-         toast({
-           title: 'Redirecting for Sign-In',
-           description: 'Your browser blocked the pop-up. We are redirecting you to complete the sign-in process.',
-         });
-         // Fallback to redirect method
-         signInWithRedirect(auth, provider);
-       } else {
-        handleAuthError(error as FirebaseError);
-       }
-    }
-    // We don't setIsLoading(false) here because a redirect might be in progress
+    setIsSubmitting(true); // Show loading state
+    // We use redirect as it's more reliable and avoids popup blockers.
+    // The result is handled by the useEffect hook.
+    signInWithRedirect(auth, provider).catch(handleAuthError);
   };
 
   const handlePasswordReset = async () => {
@@ -184,6 +173,7 @@ export default function LoginPage() {
       });
       return;
     }
+    setIsSubmitting(true);
     try {
       await sendPasswordResetEmail(auth, resetEmail);
       toast({
@@ -192,6 +182,8 @@ export default function LoginPage() {
       });
     } catch (error) {
       handleAuthError(error as FirebaseError);
+    } finally {
+        setIsSubmitting(false);
     }
   };
 
@@ -228,7 +220,7 @@ export default function LoginPage() {
                   placeholder="m@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  disabled={isLoading}
+                  disabled={isSubmitting}
                 />
               </div>
               <div className="space-y-2">
@@ -238,13 +230,13 @@ export default function LoginPage() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  disabled={isLoading}
+                  disabled={isSubmitting}
                 />
               </div>
-              <Button onClick={handleSignIn} className="w-full" disabled={isLoading}>
-                {isLoading ? <Loader2 className="animate-spin" /> : 'Sign In'}
+              <Button onClick={handleSignIn} className="w-full" disabled={isSubmitting}>
+                {isSubmitting ? <Loader2 className="animate-spin" /> : 'Sign In'}
               </Button>
-              <Button onClick={handleGoogleSignIn} variant="outline" className="w-full" disabled={isLoading}>
+              <Button onClick={handleGoogleSignIn} variant="outline" className="w-full" disabled={isSubmitting}>
                 Sign In with Google
               </Button>
             </CardContent>
@@ -258,10 +250,11 @@ export default function LoginPage() {
                         );
                         if (emailForReset) {
                             setResetEmail(emailForReset);
-                            handlePasswordReset();
+                            handlePasswordReset(); // Call the async function
                         }
                         }}
                         className="underline"
+                        disabled={isSubmitting}
                     >
                         Reset it
                     </button>
@@ -286,7 +279,7 @@ export default function LoginPage() {
                   placeholder="m@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  disabled={isLoading}
+                  disabled={isSubmitting}
                 />
               </div>
               <div className="space-y-2">
@@ -296,13 +289,13 @@ export default function LoginPage() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  disabled={isLoading}
+                  disabled={isSubmitting}
                 />
               </div>
-              <Button onClick={handleSignUp} className="w-full" disabled={isLoading}>
-                {isLoading ? <Loader2 className="animate-spin" /> : 'Sign Up'}
+              <Button onClick={handleSignUp} className="w-full" disabled={isSubmitting}>
+                {isSubmitting ? <Loader2 className="animate-spin" /> : 'Sign Up'}
               </Button>
-              <Button onClick={handleGoogleSignIn} variant="outline" className="w-full" disabled={isLoading}>
+              <Button onClick={handleGoogleSignIn} variant="outline" className="w-full" disabled={isSubmitting}>
                 Sign Up with Google
               </Button>
             </CardContent>
@@ -312,3 +305,5 @@ export default function LoginPage() {
     </div>
   );
 }
+
+    
