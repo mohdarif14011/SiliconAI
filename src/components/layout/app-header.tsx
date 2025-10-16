@@ -103,14 +103,18 @@ export function AppHeader() {
                 </Link>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                 <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), "disabled:opacity-50 cursor-not-allowed")}>
-                    Jobs
-                 </NavigationMenuLink>
+                 <Link href="#" legacyBehavior passHref>
+                   <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), "disabled:opacity-50 cursor-not-allowed")}>
+                      Jobs
+                   </NavigationMenuLink>
+                 </Link>
               </NavigationMenuItem>
                <NavigationMenuItem>
-                 <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), "disabled:opacity-50 cursor-not-allowed")}>
-                   Pricing
-                 </NavigationMenuLink>
+                 <Link href="#" legacyBehavior passHref>
+                   <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), "disabled:opacity-50 cursor-not-allowed")}>
+                     Pricing
+                   </NavigationMenuLink>
+                 </Link>
               </NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>
