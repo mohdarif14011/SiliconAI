@@ -147,28 +147,28 @@ export function AppHeader() {
               </NavigationMenuContent>
             </NavigationMenuItem>
             <NavigationMenuItem>
-              <Link href="/past-interviews" passHref>
+              <Link href="/past-interviews" legacyBehavior={false} passHref>
                 <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                   Past Interviews
                 </NavigationMenuLink>
               </Link>
             </NavigationMenuItem>
             <NavigationMenuItem>
-              <Link href="/resume-analyzer" passHref>
+               <Link href="/resume-analyzer" legacyBehavior={false} passHref>
                 <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                   Resume
                 </NavigationMenuLink>
               </Link>
             </NavigationMenuItem>
             <NavigationMenuItem>
-              <Link href="#" passHref>
+              <Link href="#" legacyBehavior={false} passHref>
                 <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                   Jobs
                 </NavigationMenuLink>
               </Link>
             </NavigationMenuItem>
             <NavigationMenuItem>
-              <Link href="#" passHref>
+              <Link href="#" legacyBehavior={false} passHref>
                 <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                   Pricing
                 </NavigationMenuLink>
@@ -225,12 +225,13 @@ export function AppHeader() {
 const ListItem = React.forwardRef<
   React.ElementRef<"a">,
   React.ComponentPropsWithoutRef<"a">
->(({ className, title, children, ...props }, ref) => {
+>(({ className, title, children, href, ...props }, ref) => {
   return (
     <li>
       <NavigationMenuLink asChild>
         <Link
           ref={ref}
+          href={href!}
           className={cn(
             "block select-none space-y-1 rounded-md p-2 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground text-sm",
             className
@@ -247,5 +248,3 @@ const ListItem = React.forwardRef<
   );
 });
 ListItem.displayName = "ListItem";
-
-    
