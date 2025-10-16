@@ -1,3 +1,4 @@
+
 import React from 'react';
 import './speaking-animation.css';
 
@@ -29,5 +30,3 @@ export const SpeakingAnimation = () => {
     </div>
   );
 };
-
-export default SpeakingAnimation;

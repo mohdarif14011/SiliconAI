@@ -41,6 +41,8 @@ import { conductInterview, ConductInterviewOutput } from "@/ai/ai-role-based-int
 import { textToSpeech } from "@/ai/ai-text-to-speech";
 import { useToast } from "@/hooks/use-toast";
 import { SpeakingAnimation } from "@/components/ai/speaking-animation";
+import { TypewriterEffect } from "@/components/ai/typewriter-effect";
+
 
 type InterviewStatus =
   | "idle"
@@ -69,10 +71,20 @@ export default function InterviewPage() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [selectedVoice, setSelectedVoice] = useState("vindemiatrix");
   const [role, setRole] = useState<VlsiRole>(initialRole);
+  const [audioFinished, setAudioFinished] = useState(false);
+  const [typewriterFinished, setTypewriterFinished] = useState(false);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioPlayerRef = useRef<HTMLAudioElement | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+
+  useEffect(() => {
+    if (status === 'speaking' && audioFinished && typewriterFinished) {
+      setStatus("listening");
+      setAudioFinished(false);
+      setTypewriterFinished(false);
+    }
+  }, [status, audioFinished, typewriterFinished]);
 
   useEffect(() => {
     audioPlayerRef.current = new Audio();
@@ -86,27 +98,25 @@ export default function InterviewPage() {
     const newRole = ROLES.find((r) => r.slug === slug);
     if (newRole) {
       setRole(newRole);
-      // Update URL without navigating
       window.history.replaceState(null, '', `/interview/${slug}`);
     }
   };
 
   const playAudio = (audioDataUri: string) => {
-    return new Promise<void>((resolve) => {
-      if (audioPlayerRef.current) {
-        audioPlayerRef.current.src = audioDataUri;
-        audioPlayerRef.current.play();
-        audioPlayerRef.current.onended = () => resolve();
-      }
-    });
+    if (audioPlayerRef.current) {
+      audioPlayerRef.current.src = audioDataUri;
+      audioPlayerRef.current.play();
+      audioPlayerRef.current.onended = () => setAudioFinished(true);
+    }
   };
 
   const speakAndListen = async (text: string) => {
     setStatus("speaking");
+    setAudioFinished(false);
+    setTypewriterFinished(false);
     try {
       const { audioDataUri } = await textToSpeech({ text, voiceName: selectedVoice });
-      await playAudio(audioDataUri);
-      setStatus("listening");
+      playAudio(audioDataUri);
     } catch (error) {
       console.error("Error with TTS:", error);
       toast({
@@ -121,7 +131,6 @@ export default function InterviewPage() {
   const handleStartInterview = async () => {
     setStatus("starting");
     try {
-      // Greet the user and ask the first question
       const initialResponse = await conductInterview({ jobRole: role.name, studentResponse: "none" });
       setCurrentAIResponse(initialResponse);
       setTranscript(initialResponse.transcript);
@@ -318,11 +327,19 @@ export default function InterviewPage() {
               </CardHeader>
               <CardContent>
                 {status === 'speaking' ? (
-                   <div className="flex justify-center items-center py-4">
-                      <SpeakingAnimation />
+                   <div className="flex items-start gap-4 p-4">
+                      <div className="flex-shrink-0">
+                         <SpeakingAnimation />
+                      </div>
+                      <div className="flex-1 pt-2 min-h-[140px]">
+                        <TypewriterEffect 
+                          text={currentAIResponse?.aiResponse || ""}
+                          onComplete={() => setTypewriterFinished(true)}
+                        />
+                      </div>
                    </div>
                 ) : (
-                   <p className="text-lg font-medium">{currentAIResponse?.aiResponse}</p>
+                   <p className="text-lg font-medium p-4">{currentAIResponse?.aiResponse}</p>
                 )}
               </CardContent>
             </Card>
