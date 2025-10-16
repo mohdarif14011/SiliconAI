@@ -13,7 +13,8 @@
 .circle {
   border-radius: 50%;
   position: absolute;
-  border: 3px solid hsl(var(--primary) / 0.5);
+  border-width: 3px;
+  border-color: hsl(var(--primary) / 0.5);
   animation: pulse 2s infinite;
 }
 
