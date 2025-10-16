@@ -146,26 +146,33 @@ export function AppHeader() {
                 </div>
               </NavigationMenuContent>
             </NavigationMenuItem>
-             <NavigationMenuItem>
-                <Link href="/resume-analyzer" passHref>
-                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                    Resume
-                  </NavigationMenuLink>
-                </Link>
+            <NavigationMenuItem>
+              <Link href="/past-interviews" legacyBehavior passHref>
+                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                  Past Interviews
+                </NavigationMenuLink>
+              </Link>
             </NavigationMenuItem>
-             <NavigationMenuItem>
-                <Link href="#" passHref>
-                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                    Jobs
-                  </NavigationMenuLink>
-                </Link>
+            <NavigationMenuItem>
+              <Link href="/resume-analyzer" legacyBehavior passHref>
+                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                  Resume
+                </NavigationMenuLink>
+              </Link>
             </NavigationMenuItem>
-             <NavigationMenuItem>
-                <Link href="#" passHref>
-                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                    Pricing
-                  </NavigationMenuLink>
-                </Link>
+            <NavigationMenuItem>
+              <Link href="#" legacyBehavior passHref>
+                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                  Jobs
+                </NavigationMenuLink>
+              </Link>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <Link href="#" legacyBehavior passHref>
+                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                  Pricing
+                </NavigationMenuLink>
+              </Link>
             </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>

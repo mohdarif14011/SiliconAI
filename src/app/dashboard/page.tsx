@@ -5,8 +5,6 @@ import Link from "next/link";
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import {
   Select,
@@ -16,18 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { ROLES, INTERVIEWS } from "@/lib/data";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { format } from "date-fns";
-import { ArrowRight } from "lucide-react";
+import { ROLES } from "@/lib/data";
 import { useUser } from "@/firebase";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -113,61 +100,6 @@ export default function DashboardPage() {
               </Link>
             </div>
           </div>
-        </section>
-
-        <section className="w-full max-w-6xl mx-auto mt-16">
-          <Card>
-            <CardHeader>
-              <CardTitle>Past Interviews</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Score</TableHead>
-                    <TableHead className="text-right">Report</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {INTERVIEWS.map((interview) => (
-                    <TableRow key={interview.id}>
-                      <TableCell className="font-medium">
-                        {interview.role}
-                      </TableCell>
-                      <TableCell>
-                        {format(new Date(interview.date), "MMMM d, yyyy")}
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={
-                            interview.score > 80
-                              ? "default"
-                              : "secondary"
-                          }
-                          className={
-                            interview.score > 80
-                              ? "bg-green-100 text-green-800"
-                              : "bg-yellow-100 text-yellow-800"
-                          }
-                        >
-                          {interview.score}/100
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button variant="ghost" size="sm" asChild>
-                          <Link href={`/report/${interview.id}`}>
-                            View <ArrowRight className="ml-2 h-4 w-4" />
-                          </Link>
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
         </section>
       </main>
     </div>
