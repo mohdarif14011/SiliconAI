@@ -92,6 +92,9 @@ export default function LoginPage() {
 
     let description = 'An unexpected error occurred. Please try again.';
     switch (error.code) {
+       case 'auth/unauthorized-domain':
+        description = `This domain is not authorized for authentication. Please add '${window.location.hostname}' to the list of authorized domains in your Firebase Console under Authentication > Settings.`;
+        break;
       case 'auth/user-not-found':
       case 'auth/wrong-password':
       case 'auth/invalid-credential':
@@ -114,6 +117,7 @@ export default function LoginPage() {
       variant: 'destructive',
       title: 'Authentication Failed',
       description,
+      duration: 9000, // Show the toast for longer
     });
   };
 
@@ -320,5 +324,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
-    
