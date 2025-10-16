@@ -147,21 +147,21 @@ export function AppHeader() {
               </NavigationMenuContent>
             </NavigationMenuItem>
              <NavigationMenuItem>
-                <Link href="/resume-analyzer" legacyBehavior passHref>
+                <Link href="/resume-analyzer" legacyBehavior={false} passHref={false}>
                   <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                     Resume
                   </NavigationMenuLink>
                 </Link>
             </NavigationMenuItem>
              <NavigationMenuItem>
-                <Link href="#" legacyBehavior passHref>
+                <Link href="#" legacyBehavior={false} passHref={false}>
                   <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                     Jobs
                   </NavigationMenuLink>
                 </Link>
             </NavigationMenuItem>
              <NavigationMenuItem>
-                <Link href="#" legacyBehavior passHref>
+                <Link href="#" legacyBehavior={false} passHref={false}>
                   <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                     Pricing
                   </NavigationMenuLink>
