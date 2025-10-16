@@ -5,7 +5,19 @@ import Link from "next/link";
 import {
   Card,
   CardContent,
+  CardHeader,
+  CardTitle,
+  CardFooter
 } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -14,10 +26,104 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { ROLES } from "@/lib/data";
-import { useUser } from "@/firebase";
+import { ROLES, type Interview } from "@/lib/data";
+import { useUser, useCollection, useFirestore, useMemoFirebase } from "@/firebase";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { collection, query, orderBy, limit } from "firebase/firestore";
+import { Loader2, ArrowRight } from "lucide-react";
+import { format } from "date-fns";
+
+function RecentInterviews() {
+  const { user, isUserLoading } = useUser();
+  const firestore = useFirestore();
+
+  const interviewsQuery = useMemoFirebase(() => {
+    if (!user) return null;
+    return query(
+      collection(firestore, `users/${user.uid}/interviews`),
+      orderBy("date", "desc"),
+      limit(3)
+    );
+  }, [firestore, user]);
+
+  const { data: interviews, isLoading } = useCollection<Interview>(interviewsQuery);
+  
+  if (isUserLoading || (user && isLoading)) {
+    return (
+      <div className="flex justify-center items-center h-48">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
+
+  if (!user || !interviews || interviews.length === 0) {
+    return null; // Don't show the section if not logged in or no interviews
+  }
+
+  return (
+     <section className="w-full max-w-6xl mx-auto mt-12">
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Interviews</CardTitle>
+          </CardHeader>
+          <CardContent>
+             <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Role</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Score</TableHead>
+                    <TableHead className="text-right">Report</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {interviews.map((interview) => (
+                    <TableRow key={interview.id}>
+                      <TableCell className="font-medium">
+                        {interview.role}
+                      </TableCell>
+                      <TableCell>
+                        {format(new Date(interview.date), "MMMM d, yyyy")}
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={
+                            interview.overallScore > 80
+                              ? "default"
+                              : "secondary"
+                          }
+                          className={
+                            interview.overallScore > 80
+                              ? "bg-green-100 text-green-800"
+                              : "bg-yellow-100 text-yellow-800"
+                          }
+                        >
+                          {interview.overallScore}/100
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="ghost" size="sm" asChild>
+                          <Link href={`/report/${interview.id}`}>
+                            View <ArrowRight className="ml-2 h-4 w-4" />
+                          </Link>
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+          </CardContent>
+           <CardFooter className="flex justify-end">
+                <Button asChild variant="outline">
+                    <Link href="/past-interviews">View All Interviews</Link>
+                </Button>
+            </CardFooter>
+        </Card>
+      </section>
+  )
+}
+
 
 export default function DashboardPage() {
   const { user } = useUser();
@@ -101,6 +207,9 @@ export default function DashboardPage() {
             </div>
           </div>
         </section>
+
+        <RecentInterviews />
+
       </main>
     </div>
   );

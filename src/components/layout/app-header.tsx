@@ -91,13 +91,6 @@ export function AppHeader() {
               </DropdownMenu>
 
               <NavigationMenuItem>
-                <Link href="/past-interviews" legacyBehavior passHref>
-                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                    Past Interviews
-                  </NavigationMenuLink>
-                </Link>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
                 <Link href="/resume-analyzer" legacyBehavior passHref>
                   <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                     Resume
@@ -143,7 +136,7 @@ export function AppHeader() {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => router.push('/past-interviews')}>
                     <History className="mr-2 h-4 w-4" />
-                    <span>Past Interviews</span>
+                    <span>Interview History</span>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout}>
