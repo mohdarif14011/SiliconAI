@@ -8,7 +8,6 @@ import {
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
-  NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu';
 import { Button } from '@/components/ui/button';
@@ -92,32 +91,28 @@ export function AppHeader() {
               </DropdownMenu>
 
               <NavigationMenuItem>
-                <Link href="/past-interviews" legacyBehavior passHref>
-                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                    Past Interviews
+                <Link href="/past-interviews" passHref>
+                  <NavigationMenuLink asChild>
+                    <a className={navigationMenuTriggerStyle()}>Past Interviews</a>
                   </NavigationMenuLink>
                 </Link>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                <Link href="/resume-analyzer" legacyBehavior passHref>
-                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                    Resume
+                <Link href="/resume-analyzer" passHref>
+                  <NavigationMenuLink asChild>
+                    <a className={navigationMenuTriggerStyle()}>Resume</a>
                   </NavigationMenuLink>
                 </Link>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                <Link href="#" legacyBehavior passHref>
-                  <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), "disabled:opacity-50 cursor-not-allowed")}>
-                    Jobs
-                  </NavigationMenuLink>
-                </Link>
+                 <NavigationMenuLink asChild>
+                    <a className={cn(navigationMenuTriggerStyle(), "disabled:opacity-50 cursor-not-allowed")}>Jobs</a>
+                 </NavigationMenuLink>
               </NavigationMenuItem>
                <NavigationMenuItem>
-                <Link href="#" legacyBehavior passHref>
-                  <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), "disabled:opacity-50 cursor-not-allowed")}>
-                    Pricing
-                  </NavigationMenuLink>
-                </Link>
+                 <NavigationMenuLink asChild>
+                   <a className={cn(navigationMenuTriggerStyle(), "disabled:opacity-50 cursor-not-allowed")}>Pricing</a>
+                 </NavigationMenuLink>
               </NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>
@@ -175,7 +170,6 @@ const ListItem = React.forwardRef<
 >(({ className, title, children, icon: Icon, ...props }, ref) => {
   return (
     <li>
-      <NavigationMenuLink asChild>
         <a
           ref={ref}
           className={cn(
@@ -192,7 +186,6 @@ const ListItem = React.forwardRef<
             {children}
           </p>
         </a>
-      </NavigationMenuLink>
     </li>
   );
 });
