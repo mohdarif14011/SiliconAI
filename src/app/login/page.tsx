@@ -1,6 +1,6 @@
 
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
@@ -44,6 +44,12 @@ export default function LoginPage() {
   const handleAuthError = (error: FirebaseError) => {
     setIsLoading(false);
     console.error('Firebase Auth Error:', error.code, error.message);
+    
+    // Do not show a toast if the user cancelled the popup
+    if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
+      return;
+    }
+
     let description = 'An unexpected error occurred. Please try again.';
     switch (error.code) {
       case 'auth/user-not-found':
@@ -58,10 +64,6 @@ export default function LoginPage() {
         break;
       case 'auth/invalid-email':
         description = 'Please enter a valid email address.';
-        break;
-      case 'auth/popup-blocked':
-      case 'auth/cancelled-popup-request':
-        description = 'The sign-in popup was blocked or cancelled. Please try again.';
         break;
       default:
         description = error.message;
