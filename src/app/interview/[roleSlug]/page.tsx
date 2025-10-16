@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ROLES, type VlsiRole } from "@/lib/data";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Mic,
@@ -15,6 +15,7 @@ import {
   Settings2,
   Volume2,
   BrainCircuit,
+  Info,
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { PageHeader } from "@/components/layout/page-header";
@@ -65,6 +66,7 @@ export default function InterviewPage() {
   const [currentAIResponse, setCurrentAIResponse] = useState<ConductInterviewOutput | null>(null);
   const [noisePlayer, setNoisePlayer] = useState<Tone.Noise | null>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [selectedVoice, setSelectedVoice] = useState("en-US-Standard-C");
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioPlayerRef = useRef<HTMLAudioElement | null>(null);
@@ -91,7 +93,7 @@ export default function InterviewPage() {
   const speakAndListen = async (text: string) => {
     setStatus("speaking");
     try {
-      const { audioDataUri } = await textToSpeech(text);
+      const { audioDataUri } = await textToSpeech({ text, voiceName: selectedVoice });
       await playAudio(audioDataUri);
       setStatus("listening");
     } catch (error) {
@@ -212,12 +214,51 @@ export default function InterviewPage() {
     switch (status) {
       case "idle":
         return (
-          <div className="text-center">
-            <h2 className="text-2xl font-semibold">Ready for your mock interview?</h2>
-            <p className="text-muted-foreground mt-2">You'll be speaking with an AI interviewer for the {role.name} role.</p>
-            <Button onClick={handleStartInterview} size="lg" className="mt-8">
-              Begin Interview
-            </Button>
+          <div className="w-full max-w-lg">
+            <Card>
+              <CardHeader className="text-center">
+                <CardTitle className="text-2xl">Ready for your mock interview?</CardTitle>
+                <CardDescription>You'll be speaking with an AI interviewer for the {role.name} role.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <Card className="bg-accent/50 border-accent">
+                   <CardContent className="p-4 space-y-3">
+                     <div className="flex items-center gap-4">
+                        <Info className="h-5 w-5 text-primary" />
+                        <h4 className="font-semibold">Interview Details</h4>
+                     </div>
+                     <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                        <li>
+                            <span className="font-semibold text-foreground">Role:</span> {role.name}
+                        </li>
+                        <li>
+                            <span className="font-semibold text-foreground">Questions:</span> {MAX_QUESTIONS} technical questions
+                        </li>
+                        <li>
+                            <span className="font-semibold text-foreground">Format:</span> Voice-based Q&A
+                        </li>
+                     </ul>
+                   </CardContent>
+                </Card>
+
+                <div className="space-y-2">
+                  <Label>AI Voice Accent</Label>
+                  <Select value={selectedVoice} onValueChange={setSelectedVoice}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select an accent" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="en-US-Standard-C">American Accent</SelectItem>
+                      <SelectItem value="en-IN-Standard-B">Indian Accent</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <Button onClick={handleStartInterview} size="lg" className="w-full">
+                  Begin Interview
+                </Button>
+              </CardContent>
+            </Card>
           </div>
         );
       case "starting":
