@@ -1,4 +1,4 @@
-# VLSI Interview Ace
+# SiliconAI
 
 This is a Next.js application that provides a platform for VLSI students to take mock interviews using a voice-based AI for different job roles.
 

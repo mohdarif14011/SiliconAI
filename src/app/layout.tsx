@@ -20,7 +20,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="icon" href="https://res.cloudinary.com/donszbe80/image/upload/v1760549926/Logo_si_ygvrru.png" type="image/png" />
       </head>
       <body className="font-body antialiased">
         <FirebaseClientProvider>

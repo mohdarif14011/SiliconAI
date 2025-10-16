@@ -4,8 +4,8 @@ export function RemastoLogo() {
     <div className="flex items-center">
       <img
         src="https://res.cloudinary.com/donszbe80/image/upload/v1760549926/Logo_si_ygvrru.png"
-        width="32"
-        height="32"
+        width="45"
+        height="45"
         alt="SiliconAI Logo"
         style={{
           borderRadius: "50%",
