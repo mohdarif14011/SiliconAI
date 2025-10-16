@@ -21,7 +21,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Logo } from './logo';
 import { cn } from '@/lib/utils';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ROLES } from '@/lib/data';
 import { useUser } from '@/firebase';
 import { getAuth, signOut } from 'firebase/auth';
@@ -38,6 +38,11 @@ const icons: { [key: string]: React.ElementType } = {
 export function AppHeader() {
   const { user, isUserLoading } = useUser();
   const router = useRouter();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -75,7 +80,7 @@ export function AppHeader() {
                 <DropdownMenuContent className="w-[500px]" align="start">
                   <div className="grid w-full grid-cols-2 gap-3 p-2">
                     {ROLES.map(role => (
-                      <DropdownMenuItem key={role.slug} asChild className="p-0">
+                       <DropdownMenuItem key={role.slug} asChild className="p-0">
                          <Link href={`/interview/${role.slug}`}>
                             <ListItem
                               title={role.name}
@@ -112,7 +117,7 @@ export function AppHeader() {
         </div>
         <div className="flex flex-1 items-center justify-end space-x-4">
           <nav className="flex items-center space-x-2">
-            {isUserLoading ? (
+             {(!isClient || isUserLoading) ? (
               <Skeleton className="h-8 w-8 rounded-full" />
             ) : user ? (
               <DropdownMenu>
@@ -183,5 +188,3 @@ const ListItem = React.forwardRef<
   );
 });
 ListItem.displayName = 'ListItem';
-
-    
