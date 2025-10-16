@@ -23,7 +23,7 @@ import {
 import { Logo } from './logo';
 import { cn } from '@/lib/utils';
 import React from 'react';
-import { ROLES, VlsiRole } from '@/lib/data';
+import { ROLES } from '@/lib/data';
 import { useUser } from '@/firebase';
 import { getAuth, signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
@@ -66,27 +66,25 @@ export function AppHeader() {
           </Link>
           <NavigationMenu>
             <NavigationMenuList>
-               <DropdownMenu>
+              <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                   <Button variant="ghost" className={cn(navigationMenuTriggerStyle(), 'gap-1')}>
+                  <Button variant="ghost" className={cn(navigationMenuTriggerStyle(), 'gap-1')}>
                     Interviews <ChevronDown className="h-3 w-3" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-[500px]" align="start">
-                    <div className="grid w-full grid-cols-2 gap-3 p-2">
-                      {ROLES.map(role => (
-                        <ListItem
-                          key={role.name}
-                          title={role.name}
-                          href={`/interview/${role.slug}`}
-                          icon={icons[role.slug]}
-                          onClick={() => router.push(`/interview/${role.slug}`)}
-                          className="cursor-pointer"
-                        >
-                          {role.description}
-                        </ListItem>
-                      ))}
-                    </div>
+                  <div className="grid w-full grid-cols-2 gap-3 p-2">
+                    {ROLES.map(role => (
+                       <Link href={`/interview/${role.slug}`} key={role.name} passHref>
+                          <ListItem
+                            title={role.name}
+                            icon={icons[role.slug]}
+                          >
+                            {role.description}
+                          </ListItem>
+                       </Link>
+                    ))}
+                  </div>
                 </DropdownMenuContent>
               </DropdownMenu>
 
@@ -134,12 +132,16 @@ export function AppHeader() {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => router.push('/past-interviews')}>
-                    <History className="mr-2 h-4 w-4" />
-                    <span>Interview History</span>
-                  </DropdownMenuItem>
+                  <Link href="/past-interviews" passHref legacyBehavior>
+                    <DropdownMenuItem asChild className="cursor-pointer">
+                      <a>
+                        <History className="mr-2 h-4 w-4" />
+                        <span>Interview History</span>
+                      </a>
+                    </DropdownMenuItem>
+                  </Link>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout}>
+                  <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Log out</span>
                   </DropdownMenuItem>
@@ -162,24 +164,22 @@ const ListItem = React.forwardRef<
   React.ComponentPropsWithoutRef<'a'> & { icon?: React.ElementType }
 >(({ className, title, children, icon: Icon, ...props }, ref) => {
   return (
-    <li>
-        <a
-          ref={ref}
-          className={cn(
-            'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
-            className
-          )}
-          {...props}
-        >
-          <div className="flex items-center gap-2 text-sm font-medium leading-none">
-            {Icon && <Icon className="h-4 w-4" />}
-            {title}
-          </div>
-          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-            {children}
-          </p>
-        </a>
-    </li>
+    <a
+      ref={ref}
+      className={cn(
+        'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
+        className
+      )}
+      {...props}
+    >
+      <div className="flex items-center gap-2 text-sm font-medium leading-none">
+        {Icon && <Icon className="h-4 w-4" />}
+        {title}
+      </div>
+      <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+        {children}
+      </p>
+    </a>
   );
 });
 ListItem.displayName = 'ListItem';
