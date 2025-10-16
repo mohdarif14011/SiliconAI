@@ -41,7 +41,7 @@ import { conductInterview, ConductInterviewOutput } from "@/ai/ai-role-based-int
 import { textToSpeech } from "@/ai/ai-text-to-speech";
 import { useToast } from "@/hooks/use-toast";
 import { SpeakingAnimation } from "@/components/ai/speaking-animation";
-import "./../speaking-animation.css";
+import "../speaking-animation.css";
 
 type InterviewStatus =
   | "idle"
@@ -68,7 +68,7 @@ export default function InterviewPage() {
   const [currentAIResponse, setCurrentAIResponse] = useState<ConductInterviewOutput | null>(null);
   const [noisePlayer, setNoisePlayer] = useState<Tone.Noise | null>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const [selectedVoice, setSelectedVoice] = useState("en-US-Standard-C");
+  const [selectedVoice, setSelectedVoice] = useState("vindemiatrix");
   const [role, setRole] = useState<VlsiRole>(initialRole);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -281,8 +281,8 @@ export default function InterviewPage() {
                           <SelectValue placeholder="Select an accent" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="en-US-Standard-C">American Accent</SelectItem>
-                          <SelectItem value="en-IN-Standard-B">Indian Accent</SelectItem>
+                          <SelectItem value="vindemiatrix">Voice 1 (Female)</SelectItem>
+                          <SelectItem value="rasalgethi">Voice 2 (Male)</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -434,3 +434,5 @@ export default function InterviewPage() {
     </div>
   );
 }
+
+    
