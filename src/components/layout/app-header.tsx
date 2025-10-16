@@ -26,13 +26,13 @@ import {
   SheetClose,
 } from "@/components/ui/sheet";
 import { Logo } from './logo';
-import { cn } from '@/lib/utils';
 import React, { useEffect, useState } from 'react';
 import { useUser } from '@/firebase';
 import { getAuth, signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { LogOut, History, Menu } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
 
 export function AppHeader() {
   const { user, isUserLoading } = useUser();
