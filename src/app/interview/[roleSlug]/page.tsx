@@ -235,7 +235,7 @@ export default function InterviewPage() {
     switch (status) {
       case "idle":
         return (
-          <div className="w-full max-w-lg">
+          <div className="w-full max-w-lg z-10">
             <Card>
               <CardHeader className="text-center">
                 <CardTitle className="text-2xl">Ready for your mock interview?</CardTitle>
@@ -294,7 +294,7 @@ export default function InterviewPage() {
         );
       case "starting":
         return (
-          <div className="flex flex-col items-center gap-4">
+          <div className="flex flex-col items-center gap-4 z-10">
             <Loader2 className="h-12 w-12 animate-spin text-primary" />
             <p className="text-lg text-muted-foreground">Preparing your interview...</p>
           </div>
@@ -305,7 +305,7 @@ export default function InterviewPage() {
       case "processing":
       case "feedback":
         return (
-          <div className="w-full max-w-3xl">
+          <div className="w-full max-w-3xl z-10">
             <Progress value={(questionCount / MAX_QUESTIONS) * 100} className="mb-8" />
             <p className="mb-6 text-center text-sm font-medium text-muted-foreground">Question {questionCount} of {MAX_QUESTIONS}</p>
             
@@ -316,9 +316,6 @@ export default function InterviewPage() {
               <CardContent className="min-h-[120px] flex items-center justify-center">
                  {status === 'speaking' ? (
                   <div className="flex items-center gap-6 w-full">
-                     <div className="flex-shrink-0">
-                       <SpeakingAnimation />
-                     </div>
                      <div className="flex-1">
                         <TypewriterEffect 
                           text={currentAIResponse?.aiResponse ?? ""} 
@@ -374,7 +371,7 @@ export default function InterviewPage() {
         );
        case "completed":
         return (
-          <div className="text-center">
+          <div className="text-center z-10">
             <CheckCircle2 className="mx-auto h-16 w-16 text-green-500 mb-4" />
             <h2 className="text-2xl font-semibold">Interview Completed!</h2>
             <p className="text-muted-foreground mt-2">Well done! You've completed the mock interview.</p>
@@ -400,12 +397,17 @@ export default function InterviewPage() {
   }
 
   return (
-    <div className="flex min-h-screen w-full flex-col">
+    <div className="flex min-h-screen w-full flex-col relative overflow-hidden">
        <PageHeader title={`${selectedRole?.name ?? 'Interview'} `} />
        <main className="flex flex-1 flex-col items-center justify-center p-4">
+         {status === 'speaking' && (
+            <div className="absolute inset-0 flex items-center justify-center -z-10 blur-3xl">
+                <SpeakingAnimation />
+            </div>
+         )}
          {renderContent()}
       </main>
-      <div className="absolute bottom-4 right-4">
+      <div className="absolute bottom-4 right-4 z-20">
         <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
           <SheetTrigger asChild>
             <Button variant="outline" size="icon">
@@ -442,5 +444,3 @@ export default function InterviewPage() {
     </div>
   );
 }
-
-    
