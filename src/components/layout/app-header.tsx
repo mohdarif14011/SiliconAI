@@ -19,6 +19,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetClose,
+} from "@/components/ui/sheet";
 import { Logo } from './logo';
 import { cn } from '@/lib/utils';
 import React, { useEffect, useState } from 'react';
@@ -26,14 +32,9 @@ import { ROLES } from '@/lib/data';
 import { useUser } from '@/firebase';
 import { getAuth, signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
-import { Cpu, LayoutGrid, ShieldCheck, LogOut, History, ChevronDown } from 'lucide-react';
+import { Cpu, LayoutGrid, ShieldCheck, LogOut, History, ChevronDown, Menu } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
-const icons: { [key: string]: React.ElementType } = {
-  'design-engineer': Cpu,
-  'verification-engineer': ShieldCheck,
-  'physical-design-engineer': LayoutGrid,
-};
 
 export function AppHeader() {
   const { user, isUserLoading } = useUser();
@@ -64,40 +65,71 @@ export function AppHeader() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center">
-        <div className="mr-4 hidden md:flex">
+        <div className="mr-4 flex items-center">
           <Link href="/dashboard" className="mr-6 flex items-center space-x-2">
             <Logo className="h-6 w-6" />
             <span className="hidden font-bold sm:inline-block">SiliconAI</span>
           </Link>
-          <NavigationMenu>
-            <NavigationMenuList>
-              <NavigationMenuItem>
-                <Link href="/resume-analyzer" legacyBehavior passHref>
-                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                    Resume
-                  </NavigationMenuLink>
-                </Link>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                 <Link href="/past-interviews" legacyBehavior passHref>
-                   <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                      Past Interviews
-                   </NavigationMenuLink>
-                 </Link>
-              </NavigationMenuItem>
-               <NavigationMenuItem>
-                 <Link href="#" legacyBehavior passHref>
-                   <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), "disabled:opacity-50 cursor-not-allowed")}>
-                     Pricing
-                   </NavigationMenuLink>
-                 </Link>
-              </NavigationMenuItem>
-            </NavigationMenuList>
-          </NavigationMenu>
+          <div className="hidden md:flex">
+             <NavigationMenu>
+              <NavigationMenuList>
+                <NavigationMenuItem>
+                  <Link href="/resume-analyzer" legacyBehavior passHref>
+                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                      Resume Analyzer
+                    </NavigationMenuLink>
+                  </Link>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                   <Link href="/past-interviews" legacyBehavior passHref>
+                     <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                        Past Interviews
+                     </NavigationMenuLink>
+                   </Link>
+                </NavigationMenuItem>
+                 <NavigationMenuItem>
+                   <Link href="#" legacyBehavior passHref>
+                     <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), "disabled:opacity-50 cursor-not-allowed")}>
+                       Pricing
+                     </NavigationMenuLink>
+                   </Link>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
+          </div>
         </div>
-        <div className="flex flex-1 items-center justify-end space-x-4">
-          <nav className="flex items-center space-x-2">
-             {(!isClient || isUserLoading) ? (
+
+        <div className="flex flex-1 items-center justify-end space-x-2">
+            <div className="md:hidden">
+                <Sheet>
+                    <SheetTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                        <Menu className="h-5 w-5" />
+                        <span className="sr-only">Open Menu</span>
+                    </Button>
+                    </SheetTrigger>
+                    <SheetContent side="left">
+                    <div className="flex flex-col gap-4 py-4">
+                        <SheetClose asChild>
+                         <Link href="/resume-analyzer" className={navigationMenuTriggerStyle()}>
+                            Resume Analyzer
+                        </Link>
+                        </SheetClose>
+                        <SheetClose asChild>
+                        <Link href="/past-interviews" className={navigationMenuTriggerStyle()}>
+                            Past Interviews
+                        </Link>
+                        </SheetClose>
+                        <SheetClose asChild>
+                        <Link href="#" className={cn(navigationMenuTriggerStyle(), "disabled:opacity-50 cursor-not-allowed")}>
+                            Pricing
+                        </Link>
+                        </SheetClose>
+                    </div>
+                    </SheetContent>
+                </Sheet>
+            </div>
+           {(!isClient || isUserLoading) ? (
               <Skeleton className="h-8 w-8 rounded-full" />
             ) : user ? (
               <DropdownMenu>
@@ -137,7 +169,6 @@ export function AppHeader() {
                 <Link href="/login">Login</Link>
               </Button>
             )}
-          </nav>
         </div>
       </div>
     </header>
