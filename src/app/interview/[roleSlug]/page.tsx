@@ -41,7 +41,6 @@ import { conductInterview, ConductInterviewOutput } from "@/ai/ai-role-based-int
 import { textToSpeech } from "@/ai/ai-text-to-speech";
 import { useToast } from "@/hooks/use-toast";
 import { SpeakingAnimation } from "@/components/ai/speaking-animation";
-import "../speaking-animation.css";
 
 type InterviewStatus =
   | "idle"

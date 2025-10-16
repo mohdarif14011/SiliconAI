@@ -1,5 +1,5 @@
-
 import React from 'react';
+import './speaking-animation.css';
 
 // Define a type for the inline style properties for stricter type checking.
 type BoxStyle = React.CSSProperties & {
