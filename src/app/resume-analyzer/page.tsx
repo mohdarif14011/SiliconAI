@@ -8,7 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
-import { analyzeResume, ResumeAnalysisOutput } from "@/ai/ai-resume-analyzer";
+import { analyzeResume } from "@/ai/ai-resume-analyzer";
+import type { ResumeAnalysisOutput } from "@/ai/types";
 import { Loader2, Wand2, Star, Lightbulb, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
