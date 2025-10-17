@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { FirebaseClientProvider } from '@/firebase';
+import { AppHeader } from '@/components/layout/app-header';
 
 export const metadata: Metadata = {
   title: 'SiliconAI',
@@ -25,6 +26,7 @@ export default function RootLayout({
       <body className="font-body antialiased">
         <FirebaseClientProvider>
           <div className="flex flex-col min-h-screen overflow-x-hidden">
+            <AppHeader />
             <main className="flex-1">{children}</main>
           </div>
           <Toaster />
