@@ -4,9 +4,7 @@ import {
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
-  GoogleAuthProvider,
   User,
-  signInWithPopup,
   onAuthStateChanged,
 } from 'firebase/auth';
 import { useAuth, useFirestore } from '@/firebase';
@@ -27,8 +25,6 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { FirebaseError } from 'firebase/app';
 import { Loader2 } from 'lucide-react';
-
-const provider = new GoogleAuthProvider();
 
 
 export default function LoginPage() {
@@ -140,18 +136,6 @@ export default function LoginPage() {
     }
   };
 
-  const handleGoogleSignIn = async () => {
-    setIsSubmitting(true);
-    try {
-      const result = await signInWithPopup(auth, provider);
-      await createUserProfileDocument(result.user);
-      toast({ title: 'Success', description: "You're logged in." });
-      router.push(redirectPath);
-    } catch (error) {
-       handleAuthError(error as FirebaseError);
-    }
-  };
-
   const handlePasswordReset = async (emailForReset: string) => {
     if (!emailForReset) {
       toast({
@@ -224,9 +208,6 @@ export default function LoginPage() {
               <Button onClick={handleSignIn} className="w-full" disabled={isSubmitting}>
                 {isSubmitting ? <Loader2 className="animate-spin" /> : 'Sign In'}
               </Button>
-              <Button onClick={handleGoogleSignIn} variant="outline" className="w-full" disabled={isSubmitting}>
-                 {isSubmitting ? <Loader2 className="animate-spin" /> : 'Sign In with Google'}
-              </Button>
             </CardContent>
             <CardFooter className="text-center text-sm">
                 <p>
@@ -282,9 +263,6 @@ export default function LoginPage() {
               <Button onClick={handleSignUp} className="w-full" disabled={isSubmitting}>
                 {isSubmitting ? <Loader2 className="animate-spin" /> : 'Sign Up'}
               </Button>
-              <Button onClick={handleGoogleSignIn} variant="outline" className="w-full" disabled={isSubmitting}>
-                {isSubmitting ? <Loader2 className="animate-spin" /> : 'Sign Up with Google'}
-              </Button>
             </CardContent>
           </Card>
         </TabsContent>
@@ -292,4 +270,3 @@ export default function LoginPage() {
     </div>
   );
 }
-    
