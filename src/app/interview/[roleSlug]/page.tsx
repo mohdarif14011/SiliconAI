@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useRef, useEffect } from "react";
@@ -376,9 +375,9 @@ export default function InterviewPage() {
   return (
     <div className="flex min-h-screen w-full flex-col relative overflow-hidden">
        <PageHeader title={`${selectedRole?.name ?? 'Interview'} `} />
-       <main className="flex flex-1 flex-col items-center justify-center p-4">
+       <main className="flex flex-1 flex-col items-center justify-center p-4 relative">
          {status === 'speaking' && (
-            <div className="absolute inset-0 flex items-center justify-center blur-2xl">
+            <div className="absolute inset-0 flex items-center justify-center blur-2xl -z-10">
                 <SpeakingAnimation />
             </div>
          )}
