@@ -30,11 +30,6 @@ import { FirebaseError } from 'firebase/app';
 import { Loader2 } from 'lucide-react';
 
 const provider = new GoogleAuthProvider();
-if (typeof window !== 'undefined') {
-    provider.setCustomParameters({
-        'auth_domain': window.location.hostname
-    });
-}
 
 
 export default function LoginPage() {
