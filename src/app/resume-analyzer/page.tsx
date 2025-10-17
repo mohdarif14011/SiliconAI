@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { analyzeResume } from "@/ai/ai-resume-analyzer";
 import type { ResumeAnalysisOutput } from "@/ai/types";
-import { Loader2, Wand2, Star, Lightbulb, CheckCircle } from "lucide-react";
+import { Loader2, Wand2, Star, Lightbulb, CheckCircle, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function ResumeAnalyzerPage() {
@@ -18,8 +18,31 @@ export default function ResumeAnalyzerPage() {
     const [jobTitle, setJobTitle] = useState('');
     const [jobDescriptionText, setJobDescriptionText] = useState('');
     const [resumeText, setResumeText] = useState('');
+    const [resumeFileName, setResumeFileName] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [analysisResult, setAnalysisResult] = useState<ResumeAnalysisOutput | null>(null);
+
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            setResumeFileName(file.name);
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const text = e.target?.result as string;
+                setResumeText(text);
+            };
+            reader.onerror = () => {
+                toast({
+                    variant: "destructive",
+                    title: "File Read Error",
+                    description: "Could not read the selected file. Please try again."
+                });
+                setResumeFileName('');
+                setResumeText('');
+            };
+            reader.readAsText(file);
+        }
+    };
 
     const handleAnalyze = async () => {
         setIsLoading(true);
@@ -50,7 +73,7 @@ export default function ResumeAnalyzerPage() {
                  <Card>
                     <CardHeader>
                         <CardTitle>Analyze Your Resume</CardTitle>
-                        <CardDescription>Enter the job details and your resume to get an AI-powered analysis.</CardDescription>
+                        <CardDescription>Enter the job details and upload your resume to get an AI-powered analysis.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
                          <div className="space-y-2">
@@ -74,14 +97,32 @@ export default function ResumeAnalyzerPage() {
                                 />
                             </div>
                              <div className="space-y-2">
-                                <Label htmlFor="resume">Your Resume</Label>
-                                <Textarea 
-                                    id="resume"
-                                    placeholder="Paste your resume text here..." 
-                                    className="h-96 font-mono text-xs"
-                                    value={resumeText}
-                                    onChange={(e) => setResumeText(e.target.value)}
-                                />
+                                <Label htmlFor="resume-file">Your Resume</Label>
+                                 <Input 
+                                    id="resume-file"
+                                    type="file"
+                                    onChange={handleFileChange}
+                                    accept=".txt,.md,.rtf"
+                                    className="pt-2 text-sm"
+                                 />
+                                 {resumeFileName && (
+                                     <div className="flex items-center gap-2 text-sm text-muted-foreground pt-2">
+                                         <FileText className="h-4 w-4" />
+                                         <span>{resumeFileName}</span>
+                                     </div>
+                                 )}
+                                 {!resumeText && (
+                                    <div className="h-80 rounded-md border border-dashed flex items-center justify-center text-center text-muted-foreground p-4">
+                                        <p>Upload your resume file to begin.<br/>(Supported formats: .txt, .md, .rtf)</p>
+                                    </div>
+                                 )}
+                                 {resumeText && (
+                                     <Textarea 
+                                        readOnly
+                                        value={resumeText}
+                                        className="h-80 font-mono text-xs bg-muted/30"
+                                     />
+                                 )}
                             </div>
                         </div>
                     </CardContent>
