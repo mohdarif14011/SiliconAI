@@ -71,7 +71,7 @@ export default function LoginPage() {
     let description = 'An unexpected error occurred. Please try again.';
     switch (error.code) {
        case 'auth/unauthorized-domain':
-        description = `This domain is not authorized for authentication. Please add '${window.location.hostname}' to the list of authorized domains in your Firebase Console under Authentication > Settings.`;
+        description = `This domain is not authorized for authentication. Please add '${window.location.hostname}' to the list of authorized domains in your Firebase Console under Authentication > Settings > Authorized domains.`;
         break;
       case 'auth/user-not-found':
       case 'auth/wrong-password':
