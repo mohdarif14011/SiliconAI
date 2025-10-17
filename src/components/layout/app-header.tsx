@@ -22,6 +22,8 @@ import {
 import { getAuth, signOut } from "firebase/auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ROLES } from "@/lib/data";
+import { useIsMobile } from "@/hooks/use-mobile";
+import React from "react";
 
 function UserNav() {
     const { user } = useUser();
@@ -67,19 +69,54 @@ function UserNav() {
     )
 }
 
-export function AppHeader() {
-  const mainNavLinks = [
+function MainNav() {
+    const mainNavLinks = [
     { href: "/past-interviews", label: "Past Interviews" },
     { href: "/resume-analyzer", label: "Resume" },
     { href: "/pricing", label: "Pricing" },
   ];
-
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 max-w-screen-2xl items-center px-4 md:px-8">
-        {/* Mobile Nav */}
+    <div className="mr-4 hidden md:flex items-center">
+        <Link href="/dashboard" className="mr-6 flex items-center space-x-2">
+        <Image src="https://res.cloudinary.com/donszbe80/image/upload/v1760549926/Logo_si_ygvrru.png" alt="SiliconAI Logo" width={32} height={32} className="rounded-full" />
+        <span className="font-bold">SiliconAI</span>
+        </Link>
+        <nav className="flex items-center space-x-6 text-sm font-medium">
+            <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="flex items-center gap-1">
+                    Interviews <ChevronDown className="h-4 w-4" />
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+                {ROLES.map(role => (
+                        <DropdownMenuItem key={role.slug} asChild>
+                        <Link href={`/interview/${role.slug}`}>{role.name}</Link>
+                        </DropdownMenuItem>
+                ))}
+            </DropdownMenuContent>
+            </DropdownMenu>
+
+        {mainNavLinks.map(link => (
+            <Link key={link.href} href={link.href} className="transition-colors hover:text-foreground/80 text-foreground/60">
+                {link.label}
+            </Link>
+        ))}
+        </nav>
+  </div>
+  )
+}
+
+function MobileNav() {
+    const mainNavLinks = [
+    { href: "/past-interviews", label: "Past Interviews" },
+    { href: "/resume-analyzer", label: "Resume" },
+    { href: "/pricing", label: "Pricing" },
+  ];
+    const [isOpen, setIsOpen] = React.useState(false);
+    return (
         <div className="flex-1 md:hidden">
-          <Sheet>
+          <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon">
                 <Menu className="h-6 w-6" />
@@ -92,7 +129,7 @@ export function AppHeader() {
                 <span className="font-bold">SiliconAI</span>
               </Link>
               <div className="grid gap-4">
-                  <Link href="/dashboard" className="flex w-full items-center py-2 text-lg font-semibold">Dashboard</Link>
+                  <Link href="/dashboard" onClick={() => setIsOpen(false)} className="flex w-full items-center py-2 text-lg font-semibold">Dashboard</Link>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <button className="flex w-full items-center py-2 text-lg font-semibold text-muted-foreground">
@@ -102,7 +139,7 @@ export function AppHeader() {
                     <DropdownMenuContent className="w-56">
                         {ROLES.map(role => (
                             <DropdownMenuItem key={role.slug} asChild>
-                                <Link href={`/interview/${role.slug}`}>{role.name}</Link>
+                                <Link href={`/interview/${role.slug}`} onClick={() => setIsOpen(false)}>{role.name}</Link>
                             </DropdownMenuItem>
                         ))}
                     </DropdownMenuContent>
@@ -112,6 +149,7 @@ export function AppHeader() {
                       <Link
                           key={link.href}
                           href={link.href}
+                          onClick={() => setIsOpen(false)}
                           className="flex w-full items-center py-2 text-lg font-semibold text-muted-foreground"
                       >
                           {link.label}
@@ -121,41 +159,41 @@ export function AppHeader() {
             </SheetContent>
           </Sheet>
         </div>
+    )
+}
 
-        {/* Desktop Nav */}
-        <div className="mr-4 hidden md:flex items-center">
-          <Link href="/dashboard" className="mr-6 flex items-center space-x-2">
-            <Image src="https://res.cloudinary.com/donszbe80/image/upload/v1760549926/Logo_si_ygvrru.png" alt="SiliconAI Logo" width={32} height={32} className="rounded-full" />
-            <span className="font-bold">SiliconAI</span>
-          </Link>
-          <nav className="flex items-center space-x-6 text-sm font-medium">
-             <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="flex items-center gap-1">
-                        Interviews <ChevronDown className="h-4 w-4" />
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                    {ROLES.map(role => (
-                         <DropdownMenuItem key={role.slug} asChild>
-                           <Link href={`/interview/${role.slug}`}>{role.name}</Link>
-                         </DropdownMenuItem>
-                    ))}
-                </DropdownMenuContent>
-             </DropdownMenu>
-
-            {mainNavLinks.map(link => (
-                <Link key={link.href} href={link.href} className="transition-colors hover:text-foreground/80 text-foreground/60">
-                    {link.label}
+export function AppHeader() {
+  const isMobile = useIsMobile();
+  // Render a placeholder on the server and initial client render
+  if (isMobile === undefined) {
+    return (
+      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container flex h-16 max-w-screen-2xl items-center px-4 md:px-8">
+            <div className="mr-4 flex items-center">
+                <Link href="/dashboard" className="mr-6 flex items-center space-x-2">
+                    <Image src="https://res.cloudinary.com/donszbe80/image/upload/v1760549926/Logo_si_ygvrru.png" alt="SiliconAI Logo" width={32} height={32} className="rounded-full" />
+                    <span className="font-bold">SiliconAI</span>
                 </Link>
-            ))}
-          </nav>
+            </div>
+            <div className="flex flex-1 items-center justify-end space-x-2">
+                <UserNav />
+            </div>
         </div>
-        
-        <div className="flex flex-1 items-center justify-end space-x-2">
+      </header>
+    )
+  }
+
+  return (
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container flex h-16 max-w-screen-2xl items-center px-4 md:px-8">
+        {isMobile ? <MobileNav /> : <MainNav />}
+        <div className={`flex flex-1 items-center justify-end space-x-2 ${isMobile ? 'justify-start' : 'justify-end'}`}>
+            <div className="flex-1" />
             <UserNav />
         </div>
       </div>
     </header>
   );
 }
+
+    
