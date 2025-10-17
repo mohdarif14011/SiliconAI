@@ -9,7 +9,7 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Menu, Settings, ChevronDown } from "lucide-react";
+import { Menu, ChevronDown } from "lucide-react";
 import { useUser } from "@/firebase";
 import {
     DropdownMenu,
@@ -76,7 +76,7 @@ export function AppHeader() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 max-w-screen-2xl items-center">
+      <div className="container flex h-16 max-w-screen-2xl items-center px-5">
         {/* Mobile Nav */}
         <div className="flex-1 md:hidden">
           <Sheet>
@@ -153,7 +153,6 @@ export function AppHeader() {
         </div>
         
         <div className="flex flex-1 items-center justify-end space-x-2">
-            <Button variant="ghost" size="icon"><Settings className="h-5 w-5"/></Button>
             <UserNav />
         </div>
       </div>
