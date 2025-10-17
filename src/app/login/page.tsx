@@ -39,7 +39,6 @@ export default function LoginPage() {
   const { toast } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [resetEmail, setResetEmail] = useState('');
   const [isLoading, setIsLoading] = useState(true); // Start as true to handle redirect check
   const [isSubmitting, setIsSubmitting] = useState(false); // For form submissions
 
@@ -59,7 +58,7 @@ export default function LoginPage() {
 
 
   const handleAuthError = (error: FirebaseError) => {
-    setIsSubmitting(false); // Always stop submission loading on error
+    setIsSubmitting(false);
     console.error('Firebase Auth Error:', error.code, error.message);
     
     // Do not show a toast if the user cancelled the action
@@ -69,13 +68,8 @@ export default function LoginPage() {
 
     let description = 'An unexpected error occurred. Please try again.';
     switch (error.code) {
-       case 'auth/unauthorized-domain':
-        description = `This domain is not authorized for authentication. Please add '${window.location.hostname}' to the list of authorized domains in your Firebase Console under Authentication > Settings > Authorized domains.`;
-        break;
-      case 'auth/user-not-found':
-      case 'auth/wrong-password':
       case 'auth/invalid-credential':
-        description = 'Invalid email or password.';
+        description = 'Invalid email or password. Please try again.';
         break;
       case 'auth/email-already-in-use':
         description = 'This email is already associated with an account.';
@@ -86,15 +80,11 @@ export default function LoginPage() {
       case 'auth/invalid-email':
         description = 'Please enter a valid email address.';
         break;
-      default:
-        // Use a generic message for other errors
-        description = "Sorry, we couldn't sign you in. Please try again.";
     }
     toast({
       variant: 'destructive',
       title: 'Authentication Failed',
       description,
-      duration: 9000, // Show the toast for longer
     });
   };
 
@@ -302,3 +292,4 @@ export default function LoginPage() {
     </div>
   );
 }
+    
