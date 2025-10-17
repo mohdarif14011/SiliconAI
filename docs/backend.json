@@ -91,7 +91,8 @@
   "auth": {
     "providers": [
       "password",
-      "anonymous"
+      "anonymous",
+      "google.com"
     ]
   },
   "firestore": {
@@ -119,7 +120,7 @@
           "schema": {
             "$ref": "#/backend/entities/Interview"
           },
-          "description": "Stores performance reports for each mock interview a user completes. This is a subcollection under the user's document.",
+          "description": "Stores performance reports for each mock interview a user completes. This is a a subcollection under the user's document.",
           "params": [
             {
               "name": "userId",
