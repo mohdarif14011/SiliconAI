@@ -7,8 +7,8 @@ import {
   signInWithEmailAndPassword,
   GoogleAuthProvider,
   User,
-  getRedirectResult,
-  signInWithRedirect,
+  signInWithPopup,
+  onAuthStateChanged,
 } from 'firebase/auth';
 import { useAuth, useFirestore } from '@/firebase';
 import { doc, setDoc, serverTimestamp, getDoc } from 'firebase/firestore';
@@ -46,34 +46,17 @@ export default function LoginPage() {
 
   const redirectPath = searchParams.get('redirect') || '/dashboard';
 
-  // Handle redirect result from Google Sign-In on page load
   useEffect(() => {
-    const handleRedirect = async () => {
-      if (auth.currentUser) {
-        setIsLoading(false);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
         router.push(redirectPath);
-        return;
+      } else {
+        setIsLoading(false);
       }
-      try {
-        const result = await getRedirectResult(auth);
-        if (result && result.user) {
-          toast({ title: 'Success', description: "You're logged in." });
-          await createUserProfileDocument(result.user);
-          router.push(redirectPath);
-          return; // Stop further execution
-        }
-      } catch (error) {
-        if ((error as FirebaseError).code !== 'auth/redirect-cancelled-by-user') {
-          handleAuthError(error as FirebaseError);
-        }
-      }
-      // If there's no redirect result, stop the main loading indicator
-      setIsLoading(false);
-    };
-    handleRedirect();
-    // The dependency array is intentionally structured this way.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [auth]);
+    });
+
+    return () => unsubscribe();
+  }, [auth, router, redirectPath]);
 
 
   const handleAuthError = (error: FirebaseError) => {
@@ -171,9 +154,10 @@ export default function LoginPage() {
   const handleGoogleSignIn = async () => {
     setIsSubmitting(true);
     try {
-      // Use signInWithRedirect for a more robust flow
-      await signInWithRedirect(auth, provider);
-      // The page will redirect, and the result will be handled by the useEffect hook
+      const result = await signInWithPopup(auth, provider);
+      await createUserProfileDocument(result.user);
+      toast({ title: 'Success', description: "You're logged in." });
+      router.push(redirectPath);
     } catch (error) {
        handleAuthError(error as FirebaseError);
     }
