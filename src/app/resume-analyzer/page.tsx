@@ -5,6 +5,8 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { analyzeResume, ResumeAnalysisOutput } from "@/ai/ai-resume-analyzer";
 import { Loader2, Wand2, Star, Lightbulb, CheckCircle } from "lucide-react";
@@ -12,8 +14,9 @@ import { useToast } from "@/hooks/use-toast";
 
 export default function ResumeAnalyzerPage() {
     const { toast } = useToast();
-    const [resumeText, setResumeText] = useState('');
+    const [jobTitle, setJobTitle] = useState('');
     const [jobDescriptionText, setJobDescriptionText] = useState('');
+    const [resumeText, setResumeText] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [analysisResult, setAnalysisResult] = useState<ResumeAnalysisOutput | null>(null);
 
@@ -21,7 +24,11 @@ export default function ResumeAnalyzerPage() {
         setIsLoading(true);
         setAnalysisResult(null);
         try {
-            const result = await analyzeResume({ resume: resumeText, jobDescription: jobDescriptionText });
+            const result = await analyzeResume({ 
+                jobTitle: jobTitle,
+                jobDescription: jobDescriptionText,
+                resume: resumeText 
+            });
             setAnalysisResult(result);
         } catch (error) {
             console.error("Error analyzing resume:", error);
@@ -39,38 +46,48 @@ export default function ResumeAnalyzerPage() {
         <div className="flex min-h-screen w-full flex-col">
             <PageHeader title="AI Resume Analyzer" />
             <main className="flex-1 space-y-8 p-4 md:p-8">
-                <div className="grid gap-8 md:grid-cols-2">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Your Resume</CardTitle>
-                            <CardDescription>Paste the text from your resume below.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <Textarea 
-                                placeholder="Paste your resume here..." 
-                                className="h-96 font-code text-xs"
-                                value={resumeText}
-                                onChange={(e) => setResumeText(e.target.value)}
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>Analyze Your Resume</CardTitle>
+                        <CardDescription>Enter the job details and your resume to get an AI-powered analysis.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                         <div className="space-y-2">
+                            <Label htmlFor="job-title">Job Title</Label>
+                            <Input 
+                                id="job-title"
+                                placeholder="e.g., Senior Verification Engineer" 
+                                value={jobTitle}
+                                onChange={(e) => setJobTitle(e.target.value)}
                             />
-                        </CardContent>
-                    </Card>
-                     <Card>
-                        <CardHeader>
-                            <CardTitle>Job Description</CardTitle>
-                            <CardDescription>Paste the text from the job description.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <Textarea 
-                                placeholder="Paste the job description here..." 
-                                className="h-96 font-code text-xs"
-                                value={jobDescriptionText}
-                                onChange={(e) => setJobDescriptionText(e.target.value)}
-                            />
-                        </CardContent>
-                    </Card>
-                </div>
+                        </div>
+                        <div className="grid gap-6 md:grid-cols-2">
+                            <div className="space-y-2">
+                                <Label htmlFor="job-description">Job Description</Label>
+                                <Textarea 
+                                    id="job-description"
+                                    placeholder="Paste the job description here..." 
+                                    className="h-96 font-mono text-xs"
+                                    value={jobDescriptionText}
+                                    onChange={(e) => setJobDescriptionText(e.target.value)}
+                                />
+                            </div>
+                             <div className="space-y-2">
+                                <Label htmlFor="resume">Your Resume</Label>
+                                <Textarea 
+                                    id="resume"
+                                    placeholder="Paste your resume text here..." 
+                                    className="h-96 font-mono text-xs"
+                                    value={resumeText}
+                                    onChange={(e) => setResumeText(e.target.value)}
+                                />
+                            </div>
+                        </div>
+                    </CardContent>
+                 </Card>
+
                  <div className="text-center">
-                    <Button onClick={handleAnalyze} size="lg" disabled={isLoading || !resumeText || !jobDescriptionText}>
+                    <Button onClick={handleAnalyze} size="lg" disabled={isLoading || !resumeText || !jobDescriptionText || !jobTitle}>
                         {isLoading ? <><Loader2 className="animate-spin mr-2"/>Analyzing...</> : <><Wand2 className="mr-2"/>Analyze Resume</>}
                     </Button>
                 </div>

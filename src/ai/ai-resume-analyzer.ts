@@ -14,11 +14,12 @@
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'genkit';
+import { z } from 'zod';
 
 export const ResumeAnalysisInputSchema = z.object({
-  resume: z.string().describe('The full text content of the candidate\'s resume.'),
+  jobTitle: z.string().describe('The title of the job (e.g., "Senior Verification Engineer").'),
   jobDescription: z.string().describe('The full text content of the job description.'),
+  resume: z.string().describe('The full text content of the candidate\'s resume.'),
 });
 export type ResumeAnalysisInput = z.infer<typeof ResumeAnalysisInputSchema>;
 
@@ -51,7 +52,7 @@ const resumeAnalysisPrompt = ai.definePrompt({
   name: 'resumeAnalysisPrompt',
   input: { schema: ResumeAnalysisInputSchema },
   output: { schema: ResumeAnalysisOutputSchema },
-  prompt: `You are an expert career coach and recruiter specializing in the VLSI and semiconductor industry. Your task is to analyze a candidate's resume against a specific job description and provide a detailed, constructive analysis.
+  prompt: `You are an expert career coach and recruiter specializing in the VLSI and semiconductor industry. Your task is to analyze a candidate's resume against a specific job description and provide a detailed, constructive analysis for the job title: {{{jobTitle}}}.
 
   Analyze the provided resume and job description. Perform the following steps:
   1.  **Calculate Match Score**: Evaluate the resume against the job description's requirements (skills, experience, qualifications) and assign a score from 0 to 100.
@@ -59,6 +60,9 @@ const resumeAnalysisPrompt = ai.definePrompt({
   3.  **Summarize Alignment**: Write a brief summary highlighting the key strengths and weaknesses of the resume in relation to the role.
   4.  **Keyword Analysis**: Identify the most critical technical and soft skills from the job description. Then, determine which of these keywords are present in the resume and which are missing.
   5.  **Provide Actionable Suggestions**: Generate a list of 3-5 specific, actionable suggestions for how the candidate can improve their resume. These suggestions should be concrete, like "Add a project that demonstrates your experience with SystemVerilog and UVM" or "Quantify your achievements in your previous role by mentioning the percentage improvement in verification coverage."
+
+  **Job Title:**
+  {{{jobTitle}}}
 
   **Job Description:**
   {{{jobDescription}}}
