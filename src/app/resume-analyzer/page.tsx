@@ -12,6 +12,10 @@ import { analyzeResume } from "@/ai/ai-resume-analyzer";
 import type { ResumeAnalysisOutput } from "@/ai/types";
 import { Loader2, Wand2, Star, Lightbulb, CheckCircle, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import * as pdfjsLib from 'pdfjs-dist';
+
+// Set worker source
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
 
 export default function ResumeAnalyzerPage() {
     const { toast } = useToast();
@@ -22,27 +26,51 @@ export default function ResumeAnalyzerPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [analysisResult, setAnalysisResult] = useState<ResumeAnalysisOutput | null>(null);
 
-    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
-        if (file) {
-            setResumeFileName(file.name);
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const text = e.target?.result as string;
-                setResumeText(text);
-            };
-            reader.onerror = () => {
-                toast({
-                    variant: "destructive",
-                    title: "File Read Error",
-                    description: "Could not read the selected file. Please try again."
-                });
-                setResumeFileName('');
-                setResumeText('');
-            };
-            reader.readAsText(file);
+        if (!file) return;
+
+        setResumeFileName(file.name);
+        setResumeText(''); // Clear previous text
+        setIsLoading(true);
+
+        try {
+            if (file.type === 'application/pdf') {
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+                const numPages = pdf.numPages;
+                let fullText = '';
+                for (let i = 1; i <= numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const textContent = await page.getTextContent();
+                    fullText += textContent.items.map(item => ('str' in item ? item.str : '')).join(' ');
+                }
+                setResumeText(fullText);
+            } else {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const text = e.target?.result as string;
+                    setResumeText(text);
+                };
+                reader.onerror = () => {
+                    throw new Error("Could not read the selected file.");
+                };
+                reader.readAsText(file);
+            }
+        } catch (error) {
+            console.error("Error reading file:", error);
+            toast({
+                variant: "destructive",
+                title: "File Read Error",
+                description: "Could not process the selected file. Please ensure it's a valid PDF or text file."
+            });
+            setResumeFileName('');
+            setResumeText('');
+        } finally {
+            setIsLoading(false);
         }
     };
+
 
     const handleAnalyze = async () => {
         setIsLoading(true);
@@ -102,8 +130,9 @@ export default function ResumeAnalyzerPage() {
                                     id="resume-file"
                                     type="file"
                                     onChange={handleFileChange}
-                                    accept=".txt,.md,.rtf"
+                                    accept=".txt,.md,.rtf,.pdf"
                                     className="pt-2 text-sm"
+                                    disabled={isLoading}
                                  />
                                  {resumeFileName && (
                                      <div className="flex items-center gap-2 text-sm text-muted-foreground pt-2">
@@ -113,7 +142,7 @@ export default function ResumeAnalyzerPage() {
                                  )}
                                  {!resumeText && (
                                     <div className="h-80 rounded-md border border-dashed flex items-center justify-center text-center text-muted-foreground p-4">
-                                        <p>Upload your resume file to begin.<br/>(Supported formats: .txt, .md, .rtf)</p>
+                                        <p>Upload your resume file to begin.<br/>(Supported formats: .pdf, .txt, .md, .rtf)</p>
                                     </div>
                                  )}
                                  {resumeText && (
