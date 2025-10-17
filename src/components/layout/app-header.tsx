@@ -18,7 +18,7 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Menu, User, Settings } from "lucide-react";
+import { Menu, Settings } from "lucide-react";
 import { useUser } from "@/firebase";
 import {
     DropdownMenu,
@@ -142,7 +142,7 @@ export function AppHeader() {
 
               {mainNavLinks.map(link => (
                  <NavigationMenuItem key={link.href}>
-                    <Link href={link.href} legacyBehavior passHref>
+                    <Link href={link.href} passHref>
                         <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                             {link.label}
                         </NavigationMenuLink>
